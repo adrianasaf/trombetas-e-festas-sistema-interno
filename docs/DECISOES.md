@@ -119,5 +119,23 @@ Decisões tomadas onde a especificação era omissa ou ambígua. Formato: contex
 ### D-031 — Grupo do snapshot
 - **Decisão:** depois do corte, a meta de cada membro fica no grupo/igreja em que ele estava no snapshot, mesmo se for transferido. Os convites seguem o snapshot de `guest_referrals`.
 
+## Fase 6
+
+### D-032 — Canal de tempo real público, só com sinal
+- **Decisão:** o banco publica em Broadcast público `tef-sinal` apenas `{tabela, em}`, sem nome, telefone ou id de convidado. Um canal privado exigiria políticas em `realtime.messages` sem ganho, já que o conteúdo não é sensível. Os dados são sempre buscados por RPC com RLS.
+
+### D-033 — Recarga de segurança
+- **Contexto:** num teste real, o primeiro sinal após abrir uma conexão nova se perdeu (as três execuções seguintes passaram).
+- **Decisão:** o cliente recarrega tudo ao (re)conectar ao canal e recarrega os agregados a cada 60 s, independentemente do sinal. Assim uma mensagem perdida atrasa a tela em no máximo 1 minuto.
+
+### D-034 — Erros que entram na fila offline
+- **Decisão:** só falhas de rede (sem resposta do servidor) entram na fila. Erros de regra (sem permissão, evento encerrado) são mostrados na hora e não são reenviados. A fila desiste após 50 tentativas.
+
+### D-035 — Busca do check-in
+- **Decisão:** com 4 dígitos ou mais, a busca é pelo telefone (do convidado ou do responsável); senão, pelo nome normalizado (sem acento), por trecho ou similaridade trigram. No máximo 20 resultados, priorizando nomes que começam com o termo.
+
+### D-036 — Modo offline completo
+- **Pendência documentada (conforme a especificação):** a busca precisa de internet. Só o toque de "compareceu" e o cadastro na chegada ficam guardados quando a conexão cai.
+
 ### D-016 — Igreja nunca é excluída
 - **Decisão:** não há política de delete em `churches`, e um gatilho impede a exclusão física mesmo pelo dono do banco.

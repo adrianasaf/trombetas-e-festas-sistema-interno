@@ -504,6 +504,157 @@ await check('Fase 5: só o Admin grava snapshot manualmente', async () => {
   assert(error && /Administrador/.test(error.message), error?.message ?? 'aceito')
 })
 
+// ---- Fase 6: check-in, walk-in e tempo real ----
+{
+  const mA = await memberId('[TESTE RLS] Membro A')
+  const g6 = await rpcGuest(respA1, {
+    member: mA,
+    name: '[TESTE RLS] F6 Raimundo Check',
+    phone: '(83) 99006-4321',
+  })
+  const guest6 = g6.data?.id
+
+  await check('Fase 6: busca da Recepção devolve telefone mascarado e nunca o completo', async () => {
+    const { data, error } = await recepcao.rpc('search_checkin', { p_query: 'raimundo check' })
+    assert(!error, error?.message)
+    const row = data.find((r) => r.guest_id === guest6)
+    assert(row?.phone_masked === '(83) 9****-4321', `máscara: ${row?.phone_masked}`)
+    assert(!JSON.stringify(data).includes('990064321'), 'telefone completo vazou')
+  })
+
+  await check(
+    'Fase 6: corrida real — 12 requisições paralelas de 2 sessões → 1 registrada, 11 "já registrada"',
+    async () => {
+      const calls = Array.from({ length: 12 }, (_, i) =>
+        (i % 2 ? recepcao : gestorA).rpc('check_in', {
+          p_guest_id: guest6,
+          p_client_request_id: crypto.randomUUID(),
+        }),
+      )
+      const res = await Promise.all(calls)
+      const errors = res.filter((r) => r.error)
+      assert(!errors.length, errors[0]?.error?.message)
+      const ok = res.filter((r) => r.data.status === 'registrada').length
+      const already = res.filter((r) => r.data.status === 'ja_registrada').length
+      assert(ok === 1 && already === 11, `registrada=${ok} já=${already}`)
+      const { data: att } = await admin.from('attendances').select('id').eq('guest_id', guest6)
+      assert(att.length === 1, `linhas: ${att.length}`)
+    },
+  )
+
+  await check('Fase 6: "já registrada" informa hora e usuário de quem marcou', async () => {
+    const { data } = await recepcao.rpc('check_in', { p_guest_id: guest6 })
+    assert(data.status === 'ja_registrada' && data.checked_in_at && data.checked_in_by, JSON.stringify(data))
+  })
+
+  await check('Fase 6: mesmo client_request_id reenviado não duplica (fila offline)', async () => {
+    const g = await rpcGuest(respA1, { member: mA, name: '[TESTE RLS] F6 Fila', phone: '83990064322' })
+    const req = crypto.randomUUID()
+    const a = await recepcao.rpc('check_in', { p_guest_id: g.data.id, p_client_request_id: req })
+    const b = await recepcao.rpc('check_in', { p_guest_id: g.data.id, p_client_request_id: req })
+    assert(
+      a.data?.status === 'registrada' && b.data?.status === 'registrada' && b.data.repetida,
+      JSON.stringify(b),
+    )
+  })
+
+  await check(
+    'Fase 6: Recepção não desmarca; Gestor da igreja desmarca com motivo e o histórico fica',
+    async () => {
+      const r1 = await recepcao.rpc('revoke_attendance', {
+        p_guest_id: guest6,
+        p_type: 'presencial',
+        p_reason: 'teste',
+      })
+      assert(r1.error, 'Recepção desmarcou')
+      const r2 = await gestorA.rpc('revoke_attendance', {
+        p_guest_id: guest6,
+        p_type: 'presencial',
+        p_reason: 'teste de desmarcação',
+      })
+      assert(!r2.error, r2.error?.message)
+      const { data: hist } = await gestorA.rpc('attendance_history', { p_guest_id: guest6 })
+      assert(
+        hist.length === 1 && hist[0].revoked_at && hist[0].revoke_reason === 'teste de desmarcação',
+        JSON.stringify(hist),
+      )
+    },
+  )
+
+  await check('Fase 6: Leitor e Responsável não fazem check-in presencial', async () => {
+    const a = await leitorA.rpc('check_in', { p_guest_id: guest6 })
+    const b = await respA1.rpc('check_in', { p_guest_id: guest6 })
+    assert(a.error && b.error, 'aceito')
+  })
+
+  await check('Fase 6: Responsável registra online; online não ocupa o presencial', async () => {
+    const on = await respA1.rpc('check_in', { p_guest_id: guest6, p_type: 'online' })
+    assert(on.data?.status === 'registrada', on.error?.message ?? JSON.stringify(on.data))
+    const pres = await recepcao.rpc('check_in', { p_guest_id: guest6 })
+    assert(pres.data?.status === 'registrada', 'presencial bloqueado pelo online')
+  })
+
+  await check('Fase 6: walk-in "sem membro identificado" exige igreja e marca presença', async () => {
+    const { data: a } = await admin.from('churches').select('id').eq('name', 'ICM Manaíra').single()
+    const bad = await recepcao.rpc('walk_in_check_in', {
+      p_full_name: '[TESTE RLS] F6 Walk',
+      p_category: 'homem',
+      p_consent: true,
+      p_phone: '83990064323',
+    })
+    assert(bad.error, 'aceitou sem igreja')
+    const ok = await recepcao.rpc('walk_in_check_in', {
+      p_full_name: '[TESTE RLS] F6 Walk',
+      p_category: 'homem',
+      p_consent: true,
+      p_phone: '83990064323',
+      p_church_id: a.id,
+    })
+    assert(ok.data?.status === 'registrada' && ok.data.guest_id, ok.error?.message ?? JSON.stringify(ok.data))
+  })
+
+  await check(
+    'Fase 6: tempo real entre duas sessões — sinal chega à outra sessão sem dados pessoais',
+    async () => {
+      const received = []
+      const channel = gestorA.channel('tef-sinal')
+      await new Promise((resolve, reject) => {
+        const t = setTimeout(() => reject(new Error('não conectou ao Realtime em 15 s')), 15_000)
+        channel
+          .on('broadcast', { event: 'mudou' }, (msg) => received.push(msg))
+          .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              clearTimeout(t)
+              resolve()
+            }
+          })
+      })
+      // Aguarda a conexão estabilizar antes de gerar a mudança (a 1ª execução falhou sem isso).
+      await new Promise((r) => setTimeout(r, 1500))
+      const g = await rpcGuest(respA1, {
+        member: mA,
+        name: '[TESTE RLS] F6 Sinal Pessoal',
+        phone: '83990064324',
+      })
+      await recepcao.rpc('check_in', { p_guest_id: g.data.id })
+      const deadline = Date.now() + 15_000
+      while (!received.length && Date.now() < deadline) await new Promise((r) => setTimeout(r, 250))
+      await gestorA.removeChannel(channel)
+      assert(received.length > 0, 'nenhum sinal recebido em 15 s')
+      const text = JSON.stringify(received)
+      assert(!text.includes('Sinal Pessoal') && !text.includes('990064324'), 'sinal trouxe dado pessoal')
+    },
+  )
+
+  // Limpeza (presenças não são apagáveis pela API — feito como dono do banco, só no DEV).
+  const cleanup = runRemoteSql(
+    `delete from public.attendances where guest_id in (select id from public.guests where full_name like '[TESTE RLS] F6%');
+     delete from public.guests where full_name like '[TESTE RLS] F6%';`,
+    { capture: true },
+  )
+  if (cleanup.status !== 0) console.log('  (aviso) limpeza da Fase 6 falhou')
+}
+
 // Fases seguintes acrescentam cenários aqui (check-in, máscara de telefone, etc.).
 const extra = path.join(root, 'scripts/testar-rls.extra.mjs')
 if (existsSync(extra)) {

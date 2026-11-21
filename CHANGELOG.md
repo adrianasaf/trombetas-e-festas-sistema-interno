@@ -2,6 +2,28 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Fase 6] — 2026-11-21 — Check-in, walk-in, fila de retentativa e tempo real
+
+### Adicionado
+- RPC `check_in` atômica e idempotente (`on conflict` no índice único parcial + `client_request_id`):
+  em corrida, uma marcação registra e as demais recebem "já registrada" com hora e usuário.
+- RPC `search_checkin` (nome sem acento, similaridade trigram ou trecho do telefone), sempre com telefone
+  mascarado `(83) 9****-1234`, para Admin, Recepção e Gestor; índices trigram de telefone e nome de membro.
+- Cadastro na chegada `walk_in_check_in` (formulário mínimo, consentimento, responsável legal para menores,
+  "Sem membro identificado" com igreja obrigatória), também idempotente.
+- `revoke_attendance` (somente Gestor da igreja ou Admin, motivo obrigatório, sem apagar a linha) e
+  `attendance_history` com nomes de quem marcou/desmarcou. Online registrado pelo membro/gestor
+  (autodeclarado) e independente do presencial.
+- Sinal de tempo real por Broadcast (`tef-sinal`/`mudou`), um por comando, sem dados pessoais; o cliente
+  recarrega os agregados com debounce de 2 s, ao reconectar e a cada 60 s como rede de segurança.
+- Tela de Check-in mobile-first: busca única com debounce, cartões grandes, botão
+  "COMPARECEU AO EVENTO ✓", som e vibração opcionais, aviso "Presença já registrada às 19:42 por Fulano",
+  cadastro na chegada e contador "X check-ins aguardando envio".
+- Fila local de retentativa em IndexedDB (com queda para memória), reenvio ao voltar a conexão, ao focar a
+  aba e a cada 15 s; erros de regra não ficam presos na fila.
+- Ficha do convidado: destaque "[ ] COMPARECEU AO EVENTO?" com data/hora e usuário, desmarcação com
+  motivo, participação online e histórico. Indicador de tempo real no cabeçalho.
+
 ## [Fase 5] — 2026-11-21 — Motor de metas e snapshots
 
 ### Adicionado

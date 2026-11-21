@@ -18,6 +18,8 @@ import { MemberGuestsSection } from '@/features/guests/QuickGuestRows'
 import { DuplicatesPage } from '@/features/duplicates/DuplicatesPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
 import { MemberGoalCard } from '@/features/goals/MemberGoalCard'
+import { CheckInPage } from '@/features/checkin/CheckInPage'
+import { AttendanceCard } from '@/features/checkin/AttendanceCard'
 import { NAV_ITEMS } from '@/lib/roles'
 import { HomePage } from '@/pages/HomePage'
 import { PrivacyPage } from '@/pages/PrivacyPage'
@@ -56,7 +58,14 @@ export function App() {
           )}
         />
         <Route path="convidados" element={guarded('/convidados', <GuestsPage />)} />
-        <Route path="convidados/:id" element={guarded('/convidados', <GuestDetailPage />)} />
+        <Route
+          path="convidados/:id"
+          element={guarded(
+            '/convidados',
+            <GuestDetailPage attendanceSlot={(g) => <AttendanceCard guest={g} />} />,
+          )}
+        />
+        <Route path="check-in" element={guarded('/check-in', <CheckInPage />)} />
         <Route path="duplicidades" element={guarded('/duplicidades', <DuplicatesPage />)} />
         <Route path="configuracoes" element={guarded('/configuracoes', <SettingsPage />)} />
       </Route>

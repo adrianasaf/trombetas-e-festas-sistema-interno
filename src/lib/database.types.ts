@@ -1034,6 +1034,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      attendance_history: {
+        Args: { p_guest_id: string }
+        Returns: {
+          checked_in_at: string
+          checked_in_by: string
+          id: string
+          revoke_reason: string
+          revoked_at: string
+          revoked_by: string
+          type: Database["public"]["Enums"]["attendance_type"]
+        }[]
+      }
       bootstrap_polo_admin: { Args: { p_email: string }; Returns: string }
       can_grant_role: {
         Args: {
@@ -1042,6 +1054,14 @@ export type Database = {
           p_role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
+      }
+      check_in: {
+        Args: {
+          p_client_request_id?: string
+          p_guest_id: string
+          p_type?: Database["public"]["Enums"]["attendance_type"]
+        }
+        Returns: Json
       }
       church_overview: {
         Args: never
@@ -1251,9 +1271,57 @@ export type Database = {
         Args: { p_note?: string; p_review_id: string }
         Returns: undefined
       }
+      revoke_attendance: {
+        Args: {
+          p_guest_id: string
+          p_reason: string
+          p_type: Database["public"]["Enums"]["attendance_type"]
+        }
+        Returns: undefined
+      }
+      search_checkin: {
+        Args: { p_limit?: number; p_query: string }
+        Returns: {
+          category: Database["public"]["Enums"]["guest_category"]
+          church_name: string
+          full_name: string
+          group_name: string
+          guest_id: string
+          member_name: string
+          mode: Database["public"]["Enums"]["participation_mode"]
+          online_at: string
+          phone_masked: string
+          presencial_at: string
+          presencial_by: string
+        }[]
+      }
+      search_members_for_walkin: {
+        Args: { p_query: string }
+        Returns: {
+          church_id: string
+          church_name: string
+          full_name: string
+          group_name: string
+          member_id: string
+        }[]
+      }
       take_goal_snapshot_now: {
         Args: { p_event_id: string; p_replace?: boolean }
         Returns: number
+      }
+      walk_in_check_in: {
+        Args: {
+          p_category: Database["public"]["Enums"]["guest_category"]
+          p_church_id?: string
+          p_client_request_id?: string
+          p_consent: boolean
+          p_full_name: string
+          p_guardian_name?: string
+          p_guardian_phone?: string
+          p_member_id?: string
+          p_phone?: string
+        }
+        Returns: Json
       }
       write_audit: {
         Args: {

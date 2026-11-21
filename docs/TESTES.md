@@ -54,6 +54,18 @@ Só aparece como **aprovado** o que foi de fato executado. Itens da seção 19 a
 | pg_cron no banco real | edição de teste com corte vencido inserida sem o gatilho: snapshot gravado pelo job às 14:15 (2 membros), "succeeded"; edição removida em seguida | ✅ |
 | Banco real via API | Leitor A (igreja A sim, Polo/igreja B não); fórmula da igreja A = ativos × 3 / × 1; Leitor do Polo vê o Polo e não vê membros; Responsável só o próprio grupo; Gestor não grava snapshot | ✅ 37/37 (acumulado) |
 
+## Fase 6 — 2026-11-21
+
+| Verificação | Como | Resultado |
+|---|---|---|
+| Banco local (PGlite) | `supabase/tests/fase6-checkin.test.ts`: busca por nome sem acento e por dígitos, telefone mascarado e nunca completo; Leitor/Responsável sem busca; registra com usuário; "já registrada" com hora e usuário; índice único bloqueia inserção direta; 10 chamadas "simultâneas" → 1 registro (no PGlite elas são serializadas; ver teste real abaixo); idempotência por `client_request_id`; Recepção e Gestor de outra igreja não desmarcam; motivo obrigatório; desmarcação mantém a linha; remarcar cria nova linha; auditoria marcar/desmarcar; online independente; walk-in com membro, sem membro (igreja obrigatória e fora das metas individuais), criança sem responsável recusada, walk-in idempotente, Responsável sem walk-in; sinal de tempo real sem dados pessoais | ✅ 25/25 |
+| Fila offline | `offlineQueue.test.ts`: contador, reenvio em ordem, retentativa sem conexão, descarte em erro de regra, flush concorrente sem duplicar, limite de tentativas, detecção de erro de rede | ✅ 7/7 |
+| **Corrida real** (DEV) | 12 chamadas `check_in` em paralelo, de 2 sessões (Recepção e Gestor), para o mesmo convidado | ✅ 1 "registrada", 11 "já registrada", 1 linha no banco |
+| Banco real via API | máscara na busca; "já registrada" com hora/usuário; idempotência; Recepção não desmarca; Gestor desmarca com motivo e histórico; Leitor/Responsável sem check-in; online independente; walk-in sem membro exige igreja | ✅ |
+| **Tempo real entre duas sessões** (DEV) | sessão do Gestor inscrita no canal; Recepção marca presença em outra sessão; sinal recebido sem nome/telefone | ⚠️ 1ª execução: o sinal não chegou em 15 s. Diagnóstico: canal e envio pelo banco funcionam (cliente anônimo recebeu). 3 execuções seguintes: ✅. Mitigação: D-033 e pausa de estabilização no teste |
+| Acumulado `npm run test:rls` | — | ✅ 46/46 (3 execuções seguidas) |
+| Interface do check-in no navegador | — | ⏳ não verificada logada (ver D-020); fluxo coberto pelas RPCs. Playwright na Fase 9 |
+
 ## Situação da seção 19 da especificação
 
 | # | Teste | Situação |
@@ -64,10 +76,10 @@ Só aparece como **aprovado** o que foi de fato executado. Itens da seção 19 a
 | 4 | Cadastro de convidados, criança com responsável | ✅ local e via API no banco real |
 | 5 | Duplicidade, mescla, crédito do primeiro cadastro | ✅ local e via API no banco real |
 | 6 | Metas 20/30/50 e data de corte | ✅ local; fórmula e escopo também via API no banco real; snapshot automático confirmado no DEV |
-| 7 | Check-in, duplicada, corrida concorrente | pendente (Fase 6) |
-| 8 | Desmarcação com histórico; Recepção impedida | pendente (Fase 6) |
-| 9 | Online separado do presencial | pendente (Fase 6) |
-| 10 | Tempo real entre duas sessões | pendente (Fase 6) |
+| 7 | Check-in, duplicada, corrida concorrente | ✅ local e no banco real (12 requisições paralelas) |
+| 8 | Desmarcação com histórico; Recepção impedida | ✅ local e via API no banco real |
+| 9 | Online separado do presencial | ✅ local (metas e check-in) e via API |
+| 10 | Tempo real entre duas sessões | ✅ via API no banco real (1 falha intermitente na 1ª execução, ver Fase 6) |
 | 11 | RLS via API | ✅ local (PGlite) e via API no banco real (15 cenários; ampliado nas próximas fases) |
 | 12 | CSV e impressão | pendente (Fase 8) |
 | 13 | Layout 360 px / tablet / desktop | pendente (Fase 7) |
