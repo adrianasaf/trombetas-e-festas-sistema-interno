@@ -2,6 +2,20 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Fase 9] — 2026-11-21 — Auditoria, segurança, seed e carga (parcial)
+
+### Adicionado
+- Tela de Auditoria (Admin: tudo; Gestor: sua igreja), com filtro por tipo e detalhes antes/depois.
+- LGPD: anonimização por retenção, atendimento ao titular (localizar, anonimizar, excluir) e limpeza dos dados
+  pessoais guardados na auditoria — **implementado, validação no DEV pendente**.
+- Seed de demonstração só para o DEV (`npm run seed:demo`; remoção com `-- --limpar`): 44 grupos,
+  880 membros e 3.000 convidados fictícios.
+- Teste de carga (`npm run test:carga`) e revisão de segurança automatizada (`scripts/sql/revisao-seguranca.sql`).
+- Content-Security-Policy e HSTS na Vercel.
+
+### Pendente
+- Testes E2E com Playwright (escritos, não executados) e validação da anonimização no DEV.
+
 ## [Fase 8] — 2026-11-21 — Transporte e relatórios
 
 ### Adicionado

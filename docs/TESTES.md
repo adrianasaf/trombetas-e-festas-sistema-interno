@@ -85,11 +85,24 @@ Só aparece como **aprovado** o que foi de fato executado. Itens da seção 19 a
 | Banco real via API | relatório com RLS; exportação com telefone só Gestor/Admin e auditada; transporte no escopo | ✅ 52/52 (acumulado) |
 | Impressão / PDF e abertura do CSV no Excel | — | ⏳ não verificado manualmente (sem Excel nesta máquina); o arquivo segue o formato testado acima. Impressão será capturada no Playwright (Fase 9) |
 
+## Fase 9 — 2026-11-21
+
+| Verificação | Como | Resultado |
+|---|---|---|
+| LGPD e auditoria (local) | `fase9-lgpd.test.ts`: só Admin localiza o titular; anonimizar remove nome/telefone e preserva presenças; a auditoria do convidado perde os dados pessoais; o log do pedido não guarda nome/telefone; exclusão remove convidado e presenças; justificativa obrigatória; retenção bloqueia edição ativa e antes do prazo; depois do prazo anonimiza tudo e preserva totais; Gestor não anonimiza; auditoria por escopo | ✅ 11/11 (somente PGlite) |
+| LGPD no DEV | — | ⏳ **pendente** (pulado a pedido do usuário) |
+| Seed de demonstração (DEV) | `npm run seed:demo` | ✅ 44 grupos, 880 membros, 3.000 convidados, 1.125 presenças, 200 online, 300 transportes |
+| **Carga: busca do check-in** (DEV, 3.002 convidados) | `npm run test:carga`, perfil Recepção pela API | ✅ sequencial p50 311 ms / p95 461 ms; 20 simultâneas p50 726 ms / p95 926 ms (< 1 s). No banco, a consulta leva ~26 ms (8 ms de execução + 18 ms de planejamento); o restante é rede até a região do projeto |
+| Revisão de segurança (DEV) | `revisao-seguranca.sql`: tabela sem RLS, anon com privilégio, definer sem `search_path`, definer executável por anon, funções internas expostas, schema `private` exposto, bucket público inesperado | ✅ nenhum problema encontrado |
+| Supabase Advisor | `supabase db advisors --remote` | ⚠️ 28 avisos "função security definer executável por usuário logado": são as RPCs intencionais, cada uma valida o escopo e está coberta por testes. 1 aviso de proteção contra senhas vazadas (requer plano Pro) |
+| Segredos no build | busca por `service_role`, `sb_secret_` e JWT no `dist/` | ✅ nenhum (a única ocorrência de `sb_secret_` é o código da biblioteca que verifica prefixos) |
+| E2E (Playwright) | `e2e/fluxos.spec.ts` | ⏳ **não executado** (interrompido a pedido do usuário) |
+
 ## Situação da seção 19 da especificação
 
 | # | Teste | Situação |
 |---|---|---|
-| 1 | Login, convite, recuperação e redefinição de senha | ✅ login por senha via API; convite sem e-mail via Edge Function; ⏳ e-mails de convite e recuperação (dependem de SMTP próprio) |
+| 1 | Login, convite, recuperação e redefinição de senha | ✅ login por senha via API; convite sem e-mail via Edge Function; primeiro Admin cadastrado no DEV; ⏳ e-mails de convite e recuperação (dependem de SMTP próprio) |
 | 2 | Seed das 11 igrejas | ✅ local e no banco real (DEV) |
 | 3 | CRUD de grupos e membros, transferência | ✅ local e via API no banco real; telas logadas não verificadas no navegador (ver D-020) |
 | 4 | Cadastro de convidados, criança com responsável | ✅ local e via API no banco real |
@@ -101,5 +114,5 @@ Só aparece como **aprovado** o que foi de fato executado. Itens da seção 19 a
 | 10 | Tempo real entre duas sessões | ✅ via API no banco real (1 falha intermitente na 1ª execução, ver Fase 6) |
 | 11 | RLS via API | ✅ local (PGlite) e via API no banco real (15 cenários; ampliado nas próximas fases) |
 | 12 | CSV e impressão | ✅ geração do CSV e regras de exportação (local e API); ⏳ abertura no Excel e impressão não verificadas visualmente |
-| 13 | Layout 360 px / tablet / desktop | pendente (Fase 7) |
-| 14 | Carga: 3.000 convidados, busca < 1 s | pendente (Fase 9) |
+| 13 | Layout 360 px / tablet / desktop | ⏳ pendente: só a tela de login foi verificada em 360 px; telas logadas dependiam do Playwright |
+| 14 | Carga: 3.000 convidados, busca < 1 s | ✅ p95 461 ms (sequencial) e 926 ms (20 simultâneas) no DEV |

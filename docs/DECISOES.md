@@ -165,5 +165,16 @@ Decisões tomadas onde a especificação era omissa ou ambígua. Formato: contex
 ### D-044 — Relatórios com SECURITY INVOKER
 - **Decisão:** `report_guests` e `transport_list` rodam com os privilégios de quem consulta, de modo que a própria RLS das tabelas decide as linhas. Recepção e Leitor recebem listas vazias e usam o relatório final, só com agregados.
 
+## Fase 9
+
+### D-045 — Auditoria também é anonimizada
+- **Decisão:** como `audit_logs` guarda o antes/depois de `guests` em JSON, anonimizar ou excluir um convidado também remove nome, telefone, responsável e observações desses registros, mantendo a operação registrada.
+
+### D-046 — Região do projeto de produção
+- **Decisão:** recomendar `sa-east-1` (São Paulo) para produção. No DEV, ~95% da latência da busca é rede (consulta de ~26 ms no banco).
+
+### D-047 — E2E e anonimização pendentes por decisão do usuário
+- **Decisão:** em 21/11/2026 o usuário pediu para interromper o Playwright e pular a validação da anonimização. Ambos ficam registrados como pendentes; nada foi declarado aprovado.
+
 ### D-016 — Igreja nunca é excluída
 - **Decisão:** não há política de delete em `churches`, e um gatilho impede a exclusão física mesmo pelo dono do banco.

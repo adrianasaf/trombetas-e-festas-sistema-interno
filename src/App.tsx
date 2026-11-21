@@ -21,6 +21,8 @@ import { MemberGoalCard } from '@/features/goals/MemberGoalCard'
 import { CheckInPage } from '@/features/checkin/CheckInPage'
 import { TransportPage } from '@/features/transport/TransportPage'
 import { ReportsPage } from '@/features/reports/ReportsPage'
+import { AuditPage } from '@/features/audit/AuditPage'
+import { PrivacyCard } from '@/features/settings/PrivacyCard'
 import { AttendanceCard } from '@/features/checkin/AttendanceCard'
 import { NAV_ITEMS } from '@/lib/roles'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
@@ -84,7 +86,14 @@ export function App() {
         <Route path="transporte" element={guarded('/transporte', <TransportPage />)} />
         <Route path="relatorios" element={guarded('/relatorios', <ReportsPage />)} />
         <Route path="duplicidades" element={guarded('/duplicidades', <DuplicatesPage />)} />
-        <Route path="configuracoes" element={guarded('/configuracoes', <SettingsPage />)} />
+        <Route
+          path="configuracoes"
+          element={guarded(
+            '/configuracoes',
+            <SettingsPage retentionSlot={(ev) => <PrivacyCard event={ev} />} />,
+          )}
+        />
+        <Route path="auditoria" element={guarded('/auditoria', <AuditPage />)} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
