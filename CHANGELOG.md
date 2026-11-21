@@ -2,6 +2,21 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Fase 3] — 2026-11-21 — Igrejas, grupos e membros
+
+### Adicionado
+- RPCs agregadas `church_overview()` e `group_overview()` (contagens de grupos e membros, sem dados
+  pessoais, no escopo de estatística do usuário — o Leitor também usa).
+- Telas: Igrejas (cartões, cadastro/edição/inativação pelo Admin), detalhes da igreja com seus grupos,
+  Grupos de assistência (filtro por igreja, cadastro/edição/inativação), detalhes do grupo com membros,
+  Membros (busca, filtros de igreja/grupo/situação), ficha do membro com histórico de grupos.
+- Transferência de grupo com aviso de que os convites antigos continuam com o grupo de origem;
+  histórico gravado automaticamente.
+- A igreja do membro nunca é digitada: vem do grupo (o cliente nem envia `church_id`).
+- Componentes de formulário (`Field`, `CheckboxField`, `GroupPicker`) e utilitários de data no fuso
+  America/Fortaleza.
+- 19 novos testes de banco locais e 6 novos cenários no teste real via API.
+
 ## [Fase 2] — 2026-11-21 — Banco, migrations, RLS, auth e perfis
 
 ### Adicionado

@@ -6,6 +6,12 @@ import { RequireRole } from '@/features/auth/guards'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { SetPasswordPage } from '@/features/auth/SetPasswordPage'
 import { UsersPage } from '@/features/users/UsersPage'
+import { ChurchesPage } from '@/features/churches/ChurchesPage'
+import { ChurchDetailPage } from '@/features/churches/ChurchDetailPage'
+import { GroupsPage } from '@/features/groups/GroupsPage'
+import { GroupDetailPage } from '@/features/groups/GroupDetailPage'
+import { MembersPage } from '@/features/members/MembersPage'
+import { MemberDetailPage } from '@/features/members/MemberDetailPage'
 import { NAV_ITEMS } from '@/lib/roles'
 import { HomePage } from '@/pages/HomePage'
 import { PrivacyPage } from '@/pages/PrivacyPage'
@@ -26,6 +32,12 @@ export function App() {
       <Route element={<ProtectedLayout />}>
         <Route index element={<HomePage />} />
         <Route path="usuarios" element={guarded('/usuarios', <UsersPage />)} />
+        <Route path="igrejas" element={guarded('/igrejas', <ChurchesPage />)} />
+        <Route path="igrejas/:id" element={guarded('/igrejas', <ChurchDetailPage />)} />
+        <Route path="grupos" element={guarded('/grupos', <GroupsPage />)} />
+        <Route path="grupos/:id" element={guarded('/grupos', <GroupDetailPage />)} />
+        <Route path="membros" element={guarded('/membros', <MembersPage />)} />
+        <Route path="membros/:id" element={guarded('/membros', <MemberDetailPage />)} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

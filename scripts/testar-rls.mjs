@@ -261,6 +261,63 @@ await check('Convite: Gestor A adiciona perfil a usuário existente da igreja A 
   assert((removed ?? []).length === 1, 'não removeu a atribuição de teste')
 })
 
+// ---- Fase 3: cadastros ----
+const groupId = async (name) =>
+  (await admin.from('assistance_groups').select('id, church_id').eq('name', name).single()).data
+
+await check('Fase 3: Leitor A vê só a igreja A em church_overview', async () => {
+  const { data, error } = await leitorA.rpc('church_overview')
+  assert(!error, error?.message)
+  assert(data.length === 1 && data[0].name === 'ICM Manaíra', `viu ${data.map((c) => c.name)}`)
+})
+
+await check('Fase 3: Leitor do Polo vê as 11 igrejas agregadas', async () => {
+  const { data } = await leitorPolo.rpc('church_overview')
+  assert(data?.length === 11, `viu ${data?.length}`)
+})
+
+await check('Fase 3: Responsável A1 cadastra membro no grupo sem informar igreja', async () => {
+  const g = await groupId('[TESTE RLS] Grupo A1')
+  const { data, error } = await respA1
+    .from('members')
+    .insert({ full_name: '[TESTE RLS] Membro novo', group_id: g.id })
+    .select('id, church_id')
+    .single()
+  assert(!error, error?.message)
+  assert(data.church_id === g.church_id, 'igreja não veio do grupo')
+  await admin.from('member_group_history').select('id').eq('member_id', data.id)
+  const del = await gestorA.from('members').delete().eq('id', data.id).select('id')
+  assert(del.data?.length === 1, 'limpeza falhou')
+})
+
+await check('Fase 3: Responsável A1 não cadastra membro no grupo A2', async () => {
+  const g = await groupId('[TESTE RLS] Grupo A2')
+  const { error } = await respA1.from('members').insert({ full_name: 'X', group_id: g.id })
+  assert(error, 'inserção aceita')
+})
+
+await check('Fase 3: Gestor A transfere membro A1 → A2 e o histórico é gravado', async () => {
+  const a1 = await groupId('[TESTE RLS] Grupo A1')
+  const a2 = await groupId('[TESTE RLS] Grupo A2')
+  const { data: m } = await gestorA.from('members').select('id').eq('full_name', '[TESTE RLS] Membro A').single()
+  const up = await gestorA.from('members').update({ group_id: a2.id }).eq('id', m.id).select('group_id')
+  assert(up.data?.[0]?.group_id === a2.id, up.error?.message ?? 'não transferiu')
+  const { data: h } = await gestorA
+    .from('member_group_history')
+    .select('from_group_id, to_group_id')
+    .eq('member_id', m.id)
+    .eq('to_group_id', a2.id)
+  assert(h?.some((r) => r.from_group_id === a1.id), 'histórico não registrado')
+  await gestorA.from('members').update({ group_id: a1.id }).eq('id', m.id)
+})
+
+await check('Fase 3: Gestor A não move grupo para outra igreja', async () => {
+  const a1 = await groupId('[TESTE RLS] Grupo A1')
+  const b1 = await groupId('[TESTE RLS] Grupo B1')
+  const { error } = await gestorA.from('assistance_groups').update({ church_id: b1.church_id }).eq('id', a1.id)
+  assert(error, 'mudança aceita')
+})
+
 // Fases seguintes acrescentam cenários aqui (check-in, máscara de telefone, etc.).
 const extra = path.join(root, 'scripts/testar-rls.extra.mjs')
 if (existsSync(extra)) {

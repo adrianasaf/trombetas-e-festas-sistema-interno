@@ -26,13 +26,22 @@ Só aparece como **aprovado** o que foi de fato executado. Itens da seção 19 a
 | Supabase Advisor | `supabase db advisors --remote` | ✅ restam 3 avisos esperados (2 RPCs públicas intencionais e proteção de senha vazada, que exige plano Pro) |
 | Convite, recuperação e redefinição de senha | fluxo real com e-mail | ⏳ não executado: o SMTP padrão do Supabase só entrega para membros da equipe do projeto; depende do SMTP próprio |
 
+## Fase 3 — 2026-11-21
+
+| Verificação | Como | Resultado |
+|---|---|---|
+| Banco local (PGlite) | `supabase/tests/fase3-cadastros.test.ts`: nome de grupo único por igreja (sem diferenciar maiúsculas), mesmo nome em outra igreja permitido, grupo não muda de igreja, grupo inativo não recebe membro, Responsável cadastra sem informar igreja, Responsável bloqueado em outro grupo, inativação/reativação ajusta a data, transferência entre igrejas muda a igreja e grava histórico, histórico de outra igreja invisível, membro com convidado não pode ser excluído, visões agregadas por perfil, anônimo bloqueado | ✅ 19/19 |
+| Banco real via API (DEV) | `npm run test:rls`: Leitor A vê só a igreja A; Leitor do Polo vê as 11; Responsável cadastra membro no grupo (igreja vem do grupo); Responsável bloqueado no grupo A2; Gestor transfere A1 → A2 com histórico; Gestor não move grupo para outra igreja | ✅ 25/25 (acumulado) |
+| Interface | navegador local em 360 px: rota protegida redireciona ao login; sem erros no console | ✅ |
+| Lint, typecheck, testes, build | — | ✅ 84 testes |
+
 ## Situação da seção 19 da especificação
 
 | # | Teste | Situação |
 |---|---|---|
 | 1 | Login, convite, recuperação e redefinição de senha | ✅ login por senha via API; convite sem e-mail via Edge Function; ⏳ e-mails de convite e recuperação (dependem de SMTP próprio) |
 | 2 | Seed das 11 igrejas | ✅ local e no banco real (DEV) |
-| 3 | CRUD de grupos e membros, transferência | pendente (Fase 3) |
+| 3 | CRUD de grupos e membros, transferência | ✅ local e via API no banco real; telas logadas não verificadas no navegador (ver D-020) |
 | 4 | Cadastro de convidados, criança com responsável | pendente (Fase 4) |
 | 5 | Duplicidade, mescla, crédito do primeiro cadastro | pendente (Fase 4) |
 | 6 | Metas 20/30/50 e data de corte | pendente (Fase 5) |

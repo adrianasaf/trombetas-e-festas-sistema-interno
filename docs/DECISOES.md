@@ -72,5 +72,18 @@ Decisões tomadas onde a especificação era omissa ou ambígua. Formato: contex
 ### D-019 — Proteção contra senhas vazadas
 - **Decisão:** o aviso `auth_leaked_password_protection` fica pendente: o recurso (verificação no Have I Been Pwned) só existe no plano Pro. Está na lista de configuração manual.
 
+## Fase 3
+
+### D-020 — Telas logadas verificadas pela API, não pelo navegador
+- **Contexto:** fazer login no navegador exigiria digitar uma senha que seria enviada a um host externo (Supabase).
+- **Decisão:** a lógica e as permissões das telas são validadas por testes de banco (PGlite) e por testes reais via API com usuários de perfis diferentes; no navegador verificam-se as telas públicas e o layout em 360 px. Os testes ponta a ponta com Playwright (Fase 9) rodam com usuários de teste.
+
+### D-021 — Grupo não muda de igreja
+- **Decisão:** um gatilho impede mudar `church_id` de um grupo. Para reorganizar, cria-se um novo grupo e transferem-se os membros (cada transferência fica no histórico).
+- **Motivo:** preserva o histórico de metas e convites por igreja.
+
+### D-022 — Contagens via RPC agregada
+- **Decisão:** as telas de igrejas e grupos usam `church_overview()`/`group_overview()` em vez de contar linhas no cliente, para que o Leitor (sem acesso a membros) veja os totais e para não trafegar dados pessoais.
+
 ### D-016 — Igreja nunca é excluída
 - **Decisão:** não há política de delete em `churches`, e um gatilho impede a exclusão física mesmo pelo dono do banco.

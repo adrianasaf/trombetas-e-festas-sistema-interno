@@ -9,7 +9,7 @@ export function HomePage() {
         <CardHeader>
           <CardTitle>Estrutura inicial publicada</CardTitle>
           <CardDescription>
-            Fases 1 e 2 de 10 — estrutura, banco de dados, permissões e acesso.
+            Fases 1 a 3 de 10 — estrutura, permissões, igrejas, grupos e membros.
           </CardDescription>
         </CardHeader>
         <CardContent className="text-base">

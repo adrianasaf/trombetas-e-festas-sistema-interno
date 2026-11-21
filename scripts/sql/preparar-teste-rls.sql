@@ -51,6 +51,8 @@ begin
     on conflict do nothing;
   insert into public.assistance_groups (church_id, name, leader_name) values (v_church_b, '[TESTE RLS] Grupo B1', 'Teste')
     on conflict do nothing;
+  insert into public.assistance_groups (church_id, name, leader_name) values (v_church_a, '[TESTE RLS] Grupo A2', 'Teste')
+    on conflict do nothing;
   select id into v_group_a1 from public.assistance_groups where name = '[TESTE RLS] Grupo A1';
   select id into v_group_b1 from public.assistance_groups where name = '[TESTE RLS] Grupo B1';
 
