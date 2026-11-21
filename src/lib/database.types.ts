@@ -1230,6 +1230,17 @@ export type Database = {
           last_sign_in_at: string
         }[]
       }
+      log_export: {
+        Args: {
+          p_church_id: string
+          p_event_id: string
+          p_filters?: Json
+          p_kind: string
+          p_rows: number
+          p_with_phone: boolean
+        }
+        Returns: undefined
+      }
       member_goal_stats: {
         Args: { p_event_id?: string; p_group_id?: string; p_member_id?: string }
         Returns: {
@@ -1265,6 +1276,39 @@ export type Database = {
           p_member_id: string
         }
         Returns: undefined
+      }
+      report_guests: {
+        Args: {
+          p_category?: Database["public"]["Enums"]["guest_category"]
+          p_church_id?: string
+          p_event_id?: string
+          p_group_id?: string
+          p_invite_status?: Database["public"]["Enums"]["invite_status"]
+          p_member_id?: string
+          p_online?: string
+          p_presence?: string
+          p_special?: string
+          p_transport?: Database["public"]["Enums"]["transport_need"]
+        }
+        Returns: {
+          category: Database["public"]["Enums"]["guest_category"]
+          church_name: string
+          created_at: string
+          full_name: string
+          group_name: string
+          guardian_name: string
+          guest_id: string
+          invite_status: Database["public"]["Enums"]["invite_status"]
+          is_authority: boolean
+          is_other_church_pastor: boolean
+          is_walk_in: boolean
+          member_name: string
+          mode: Database["public"]["Enums"]["participation_mode"]
+          online_at: string
+          phone: string
+          presencial_at: string
+          transport: Database["public"]["Enums"]["transport_need"]
+        }[]
       }
       request_ip: { Args: never; Returns: string }
       resolve_duplicate_distinct: {
@@ -1332,6 +1376,28 @@ export type Database = {
       take_goal_snapshot_now: {
         Args: { p_event_id: string; p_replace?: boolean }
         Returns: number
+      }
+      transport_list: {
+        Args: {
+          p_church_id?: string
+          p_event_id?: string
+          p_group_id?: string
+          p_status?: Database["public"]["Enums"]["transport_status"]
+        }
+        Returns: {
+          church_name: string
+          driver_name: string
+          full_name: string
+          group_name: string
+          guest_id: string
+          member_name: string
+          notes: string
+          phone: string
+          pickup_point: string
+          request_id: string
+          status: Database["public"]["Enums"]["transport_status"]
+          updated_at: string
+        }[]
       }
       walk_in_check_in: {
         Args: {

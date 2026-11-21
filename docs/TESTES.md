@@ -76,6 +76,15 @@ Só aparece como **aprovado** o que foi de fato executado. Itens da seção 19 a
 | Banco real via API | RPCs de painel respeitam o escopo (Leitor A); Admin vê 11 igrejas e os grupos; anônimo não executa nenhuma | ✅ 49/49 (acumulado) |
 | Layout 360 px / tablet / desktop | — | ⏳ telas logadas serão capturadas pelo Playwright na Fase 9 |
 
+## Fase 8 — 2026-11-21
+
+| Verificação | Como | Resultado |
+|---|---|---|
+| Banco local (PGlite) | `fase8-relatorios.test.ts`: filtros de presença, marcação especial e transporte; RLS no relatório (Gestor A só igreja A; Recepção e Leitor vazio); lista de transporte no escopo; Responsável atualiza transporte do grupo (auditado); Gestor A não altera transporte da igreja B; exportação com telefone do Gestor auditada; Responsável/Gestor de outra igreja/sem igreja recusados; Responsável exporta sem telefone | ✅ 9/9 |
+| CSV | `csv.test.ts`: BOM, `;` e CRLF; aspas, `;` e quebras escapadas; fórmulas neutralizadas; booleanos/nulos; nome de arquivo sem acento | ✅ 5/5 |
+| Banco real via API | relatório com RLS; exportação com telefone só Gestor/Admin e auditada; transporte no escopo | ✅ 52/52 (acumulado) |
+| Impressão / PDF e abertura do CSV no Excel | — | ⏳ não verificado manualmente (sem Excel nesta máquina); o arquivo segue o formato testado acima. Impressão será capturada no Playwright (Fase 9) |
+
 ## Situação da seção 19 da especificação
 
 | # | Teste | Situação |
@@ -91,6 +100,6 @@ Só aparece como **aprovado** o que foi de fato executado. Itens da seção 19 a
 | 9 | Online separado do presencial | ✅ local (metas e check-in) e via API |
 | 10 | Tempo real entre duas sessões | ✅ via API no banco real (1 falha intermitente na 1ª execução, ver Fase 6) |
 | 11 | RLS via API | ✅ local (PGlite) e via API no banco real (15 cenários; ampliado nas próximas fases) |
-| 12 | CSV e impressão | pendente (Fase 8) |
+| 12 | CSV e impressão | ✅ geração do CSV e regras de exportação (local e API); ⏳ abertura no Excel e impressão não verificadas visualmente |
 | 13 | Layout 360 px / tablet / desktop | pendente (Fase 7) |
 | 14 | Carga: 3.000 convidados, busca < 1 s | pendente (Fase 9) |

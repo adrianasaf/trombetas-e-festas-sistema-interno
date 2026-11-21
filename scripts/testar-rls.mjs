@@ -684,6 +684,68 @@ await check('Fase 7: anônimo não executa nenhuma RPC de painel', async () => {
   }
 })
 
+// ---- Fase 8: transporte e relatórios ----
+await check(
+  'Fase 8: relatório de convidados respeita a RLS (Gestor A só igreja A; Recepção e Leitor vazio)',
+  async () => {
+    const g = await gestorA.rpc('report_guests', {})
+    assert(!g.error, g.error?.message)
+    assert(
+      g.data.every((r) => r.church_name === 'ICM Manaíra'),
+      'Gestor A viu outra igreja',
+    )
+    const r = await recepcao.rpc('report_guests', {})
+    const l = await leitorPolo.rpc('report_guests', {})
+    assert((r.data ?? []).length === 0 && (l.data ?? []).length === 0, 'Recepção/Leitor viram convidados')
+  },
+)
+
+await check('Fase 8: exportação com telefone só para Gestor da igreja e Admin, e é auditada', async () => {
+  const { data: a } = await admin.from('churches').select('id').eq('name', 'ICM Manaíra').single()
+  const { data: b } = await admin.from('churches').select('id').eq('name', 'ICM Geisel').single()
+  const { data: ev } = await admin.from('events').select('id').eq('status', 'ativo').single()
+  const ok = await gestorA.rpc('log_export', {
+    p_kind: 'convidados',
+    p_event_id: ev.id,
+    p_church_id: a.id,
+    p_rows: 1,
+    p_with_phone: true,
+    p_filters: { teste: true },
+  })
+  assert(!ok.error, ok.error?.message)
+  const other = await gestorA.rpc('log_export', {
+    p_kind: 'convidados',
+    p_event_id: ev.id,
+    p_church_id: b.id,
+    p_rows: 1,
+    p_with_phone: true,
+  })
+  const leader = await respA1.rpc('log_export', {
+    p_kind: 'convidados',
+    p_event_id: ev.id,
+    p_church_id: a.id,
+    p_rows: 1,
+    p_with_phone: true,
+  })
+  assert(other.error && leader.error, 'exportação com telefone indevida aceita')
+  const { data: logs } = await admin
+    .from('audit_logs')
+    .select('action, new_data')
+    .eq('action', 'exportacao.convidados')
+    .order('id', { ascending: false })
+    .limit(1)
+  assert(logs?.[0]?.new_data?.com_telefone === true, 'exportação não auditada')
+})
+
+await check('Fase 8: lista de transporte no escopo do Gestor', async () => {
+  const { data, error } = await gestorA.rpc('transport_list', {})
+  assert(!error, error?.message)
+  assert(
+    data.every((r) => r.church_name === 'ICM Manaíra'),
+    'viu transporte de outra igreja',
+  )
+})
+
 // Fases seguintes acrescentam cenários aqui (check-in, máscara de telefone, etc.).
 const extra = path.join(root, 'scripts/testar-rls.extra.mjs')
 if (existsSync(extra)) {

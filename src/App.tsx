@@ -19,6 +19,8 @@ import { DuplicatesPage } from '@/features/duplicates/DuplicatesPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
 import { MemberGoalCard } from '@/features/goals/MemberGoalCard'
 import { CheckInPage } from '@/features/checkin/CheckInPage'
+import { TransportPage } from '@/features/transport/TransportPage'
+import { ReportsPage } from '@/features/reports/ReportsPage'
 import { AttendanceCard } from '@/features/checkin/AttendanceCard'
 import { NAV_ITEMS } from '@/lib/roles'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
@@ -79,6 +81,8 @@ export function App() {
           )}
         />
         <Route path="check-in" element={guarded('/check-in', <CheckInPage />)} />
+        <Route path="transporte" element={guarded('/transporte', <TransportPage />)} />
+        <Route path="relatorios" element={guarded('/relatorios', <ReportsPage />)} />
         <Route path="duplicidades" element={guarded('/duplicidades', <DuplicatesPage />)} />
         <Route path="configuracoes" element={guarded('/configuracoes', <SettingsPage />)} />
       </Route>

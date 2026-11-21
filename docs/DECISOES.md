@@ -151,5 +151,19 @@ Decisões tomadas onde a especificação era omissa ou ambígua. Formato: contex
 ### D-040 — Painel por perfil
 - **Decisão:** quem tem escopo do Polo vê o Polo; quem tem igreja vê a igreja (com seletor); o Responsável vê o painel de cada grupo seu. O banco aplica o mesmo escopo em todas as RPCs.
 
+## Fase 8
+
+### D-041 — CSV para o Excel brasileiro
+- **Decisão:** separador `;`, UTF-8 com BOM, CRLF e telefones formatados `(83) 98765-4321`. Campos que começam com `= + - @` recebem apóstrofo (evita execução de fórmula ao abrir no Excel).
+
+### D-042 — PDF pela impressão do navegador
+- **Decisão:** "Imprimir / PDF" usa `window.print()` com CSS de impressão (sem menu, sem filtros, quebras de página que não cortam linhas). Evita uma biblioteca de PDF pesada no cliente; o usuário escolhe "Salvar como PDF".
+
+### D-043 — Quando a exportação inclui telefone
+- **Decisão:** Admin sempre; Gestor somente quando o filtro de igreja é uma igreja dele (assim a exportação não mistura igrejas). Responsável de Grupo exporta sem telefone, embora veja os telefones do grupo na tela (seção 4 × seção 14). O banco recusa registrar uma exportação com telefone fora dessas regras.
+
+### D-044 — Relatórios com SECURITY INVOKER
+- **Decisão:** `report_guests` e `transport_list` rodam com os privilégios de quem consulta, de modo que a própria RLS das tabelas decide as linhas. Recepção e Leitor recebem listas vazias e usam o relatório final, só com agregados.
+
 ### D-016 — Igreja nunca é excluída
 - **Decisão:** não há política de delete em `churches`, e um gatilho impede a exclusão física mesmo pelo dono do banco.

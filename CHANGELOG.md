@@ -2,6 +2,21 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Fase 8] — 2026-11-21 — Transporte e relatórios
+
+### Adicionado
+- Módulo de Transporte: lista de quem precisa de transporte (presencial/indefinido), com nome, telefone
+  (conforme permissão), igreja, grupo, membro, situação (Pendente → Organizado → Concluído), responsável
+  pelo transporte, ponto de embarque e observações; filtros de igreja, grupo e situação; alterações
+  auditadas.
+- Relatórios: lista de convidados com filtros de Polo, igreja, grupo, categoria, marcação especial,
+  situação, transporte, presença e online (RPC `report_guests`, que aplica a RLS de quem consulta) e
+  relatório final do evento (totais, alcance das metas, desempenho de cada igreja e de cada grupo).
+- Saídas: tela, CSV (UTF-8 com BOM, separador ";" para o Excel em português, proteção contra injeção
+  de fórmula), impressão com CSS próprio e PDF pela impressão do navegador.
+- Exportações auditadas (`log_export`): com telefone apenas para o Admin ou o Gestor da igreja filtrada;
+  demais perfis exportam sem telefone.
+
 ## [Fase 7] — 2026-11-21 — Dashboards
 
 ### Adicionado

@@ -6,7 +6,13 @@ import { buildFixture, type Fixture } from './fixtures'
 let t: TestDb
 let f: Fixture
 
-async function guest(member: string, name: string, phone: string, category = 'mulher', transport = 'meios_proprios') {
+async function guest(
+  member: string,
+  name: string,
+  phone: string,
+  category = 'mulher',
+  transport = 'meios_proprios',
+) {
   const [r] = await t.as<{ r: { id: string } }>(
     f.users.admin,
     `select public.create_guest(p_member_id => $1, p_full_name => $2, p_phone => $3, p_category => $4::public.guest_category,
