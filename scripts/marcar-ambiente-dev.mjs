@@ -4,7 +4,7 @@
  * Só funciona se o projeto vinculado for o DEV oficial. O seed de demonstração e os
  * testes de RLS se recusam a rodar sem esse marcador, protegendo a produção.
  */
-import { spawnSync } from 'node:child_process'
+import { runRemoteSql } from './lib/db-query.mjs'
 import { readFileSync, existsSync } from 'node:fs'
 
 const DEV_REF = 'zaawhfbmuogfyigxscta'
@@ -16,8 +16,5 @@ if (ref !== DEV_REF) {
 }
 const sql = `insert into public.app_settings (key, value) values ('environment', 'dev')
   on conflict (key) do update set value = 'dev', updated_at = now();`
-const r = spawnSync('npx', ['supabase', 'db', 'query', '--remote', '--yes', sql], {
-  stdio: 'inherit',
-  shell: process.platform === 'win32',
-})
+const r = runRemoteSql(sql)
 process.exit(r.status ?? 1)

@@ -1,5 +1,5 @@
 -- Prepara usuários e dados de TESTE DE RLS no projeto DEV. NUNCA rodar em produção.
--- O marcador {{SENHA}} é substituído por uma senha aleatória gerada a cada execução
+-- O marcador de senha (entre chaves duplas) é substituído por uma senha aleatória gerada a cada execução
 -- por scripts/testar-rls.mjs (a senha não é gravada em arquivo nem exibida).
 do $$
 declare

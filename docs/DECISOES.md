@@ -61,5 +61,16 @@ Decisões tomadas onde a especificação era omissa ou ambígua. Formato: contex
 ### D-015 — Senha
 - **Decisão:** mínimo de 8 caracteres com letras e números (validado no frontend e em `supabase/config.toml`).
 
+### D-017 — Funções de escopo no schema `private`
+- **Contexto:** o Supabase Advisor apontou 17 funções `security definer` chamáveis pela API.
+- **Decisão:** as funções auxiliares (`is_polo_admin`, `has_church_access`, `has_group_access` etc.) foram movidas para o schema `private`, fora da API. Ficam em `public` só as RPCs intencionais: `can_grant_role` (usada pela Edge Function) e `list_manageable_users` (tela de usuários). Os dois avisos que restam são esperados.
+
+### D-018 — Configuração de Auth do DEV mesclada
+- **Contexto:** o Auth do DEV já tinha `site_url` e URLs de redirecionamento apontando para `trombetas-e-festas-sistema-interno-tf-cbc0.vercel.app`.
+- **Decisão:** nenhuma URL existente foi removida. A `site_url` passou para `https://trombetas-e-festas-sistema-interno.vercel.app` (a URL informada pelo usuário e que responde 200), e o `-tf-cbc0` continua permitido como redirecionamento. API (`graphql_public`) e limite global de storage (50 MiB) ficaram como estavam no remoto.
+
+### D-019 — Proteção contra senhas vazadas
+- **Decisão:** o aviso `auth_leaked_password_protection` fica pendente: o recurso (verificação no Have I Been Pwned) só existe no plano Pro. Está na lista de configuração manual.
+
 ### D-016 — Igreja nunca é excluída
 - **Decisão:** não há política de delete em `churches`, e um gatilho impede a exclusão física mesmo pelo dono do banco.

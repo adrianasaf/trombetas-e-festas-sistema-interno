@@ -2,7 +2,7 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
-## [Fase 2 — em andamento] — 2026-11-21 — Banco, migrations, RLS, auth e perfis
+## [Fase 2] — 2026-11-21 — Banco, migrations, RLS, auth e perfis
 
 ### Adicionado
 - Migrations versionadas em `supabase/migrations/`: extensões (`pg_trgm`, `pgcrypto`), enums, 17 tabelas
@@ -22,9 +22,17 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 - Testes de banco locais com PGlite (31 cenários de RLS e integridade) e script `npm run test:rls`
   para testar RLS pela API no banco real.
 
-### Pendente nesta fase
-- Aplicar migrations no projeto DEV, publicar a Edge Function e rodar `npm run test:rls`
-  (aguardando acesso ao projeto `zaawhfbmuogfyigxscta` no Supabase CLI).
+- Migration `20261121000800_schema_private.sql`: funções auxiliares de escopo movidas para o schema
+  `private`, que a API não expõe (recomendação do Supabase Advisor).
+- Aplicado no projeto DEV: 8 migrations, marcador de ambiente DEV, Edge Function `convidar-usuario`
+  publicada, tipos gerados em `src/lib/database.types.ts`.
+- Auth do DEV configurado via `supabase config push`: cadastro público desligado, senha mínima de 8 com
+  letras e números, `site_url` na Vercel e URLs de redirecionamento (as já existentes foram mantidas).
+
+### Corrigido
+- Scripts que executam SQL remoto agora usam arquivo temporário (`--file`); no Windows o SQL era
+  quebrado em vários argumentos.
+- Preparo dos testes de RLS: a senha aleatória era substituída no comentário, e não no SQL.
 
 ## [Fase 1] — 2026-11-21 — Estrutura do projeto e CI
 

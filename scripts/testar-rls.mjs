@@ -8,7 +8,7 @@
  *
  * Uso: npm run test:rls
  */
-import { spawnSync } from 'node:child_process'
+import { runRemoteSql } from './lib/db-query.mjs'
 import { randomBytes } from 'node:crypto'
 import { readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
@@ -38,15 +38,11 @@ if (!URL || !ANON) {
 
 // 1) Prepara usuários/dados de teste com uma senha aleatória desta execução.
 const password = `Rls-${randomBytes(12).toString('hex')}9`
-const sql = readFileSync(path.join(root, 'scripts/sql/preparar-teste-rls.sql'), 'utf8').replace(
+const sql = readFileSync(path.join(root, 'scripts/sql/preparar-teste-rls.sql'), 'utf8').replaceAll(
   '{{SENHA}}',
   password,
 )
-const prep = spawnSync('npx', ['supabase', 'db', 'query', '--remote', '--yes', sql], {
-  encoding: 'utf8',
-  shell: process.platform === 'win32',
-  maxBuffer: 10 * 1024 * 1024,
-})
+const prep = runRemoteSql(sql, { capture: true })
 if (prep.status !== 0) {
   console.error('Falha ao preparar os dados de teste:\n', prep.stderr || prep.stdout)
   process.exit(1)
@@ -113,19 +109,32 @@ await check('Gestor A não altera convidado da igreja B', async () => {
     .eq('full_name', '[TESTE RLS] Convidado B')
     .select('id')
   assert((data ?? []).length === 0, 'conseguiu alterar')
-  const check2 = await admin.from('guests').select('notes').eq('full_name', '[TESTE RLS] Convidado B').single()
+  const check2 = await admin
+    .from('guests')
+    .select('notes')
+    .eq('full_name', '[TESTE RLS] Convidado B')
+    .single()
   assert(check2.data?.notes !== 'tentativa', 'o dado foi alterado')
 })
 
 await check('Gestor A não cria membro em grupo da igreja B', async () => {
-  const { data: g } = await admin.from('assistance_groups').select('id').eq('name', '[TESTE RLS] Grupo B1').single()
-  const { error } = await gestorA.from('members').insert({ full_name: 'Invasor', group_id: g.id, church_id: g.id })
+  const { data: g } = await admin
+    .from('assistance_groups')
+    .select('id')
+    .eq('name', '[TESTE RLS] Grupo B1')
+    .single()
+  const { error } = await gestorA
+    .from('members')
+    .insert({ full_name: 'Invasor', group_id: g.id, church_id: g.id })
   assert(error, 'inserção foi aceita')
 })
 
 await check('Gestor A não muda o crédito (igreja) de um convidado', async () => {
   const { data: b } = await admin.from('churches').select('id').eq('name', 'ICM Geisel').single()
-  const { error } = await gestorA.from('guests').update({ church_id: b.id }).eq('full_name', '[TESTE RLS] Convidado A')
+  const { error } = await gestorA
+    .from('guests')
+    .update({ church_id: b.id })
+    .eq('full_name', '[TESTE RLS] Convidado A')
   assert(error, 'alteração de crédito foi aceita')
 })
 
@@ -152,8 +161,14 @@ await check('Recepção não lê a tabela de convidados (telefones)', async () =
 
 await check('Recepção não insere presença diretamente', async () => {
   const { data: ev } = await admin.from('events').select('id').eq('status', 'ativo').single()
-  const { data: g } = await admin.from('guests').select('id').eq('full_name', '[TESTE RLS] Convidado A').single()
-  const { error } = await recepcao.from('attendances').insert({ event_id: ev.id, guest_id: g.id, type: 'presencial' })
+  const { data: g } = await admin
+    .from('guests')
+    .select('id')
+    .eq('full_name', '[TESTE RLS] Convidado A')
+    .single()
+  const { error } = await recepcao
+    .from('attendances')
+    .insert({ event_id: ev.id, guest_id: g.id, type: 'presencial' })
   assert(error, 'inserção direta aceita')
 })
 
@@ -181,7 +196,69 @@ await check('find_user_id_by_email não é executável pela API', async () => {
 await check('Gestor A não lê auditoria de outra igreja', async () => {
   const { data: a } = await admin.from('churches').select('id').eq('name', 'ICM Manaíra').single()
   const { data } = await gestorA.from('audit_logs').select('church_id')
-  assert((data ?? []).every((r) => r.church_id === a.id), 'viu auditoria de outra igreja')
+  assert(
+    (data ?? []).every((r) => r.church_id === a.id),
+    'viu auditoria de outra igreja',
+  )
+})
+
+// Edge Function convidar-usuario — apenas casos que NÃO enviam e-mail.
+async function invoke(client, body) {
+  const { data, error } = await client.functions.invoke('convidar-usuario', { body })
+  let status = 200
+  let payload = data
+  if (error) {
+    status = error.context?.status ?? 0
+    try {
+      payload = await error.context.json()
+    } catch {
+      payload = null
+    }
+  }
+  return { status, payload }
+}
+
+await check('Convite: Gestor A não pode conceder Administrador (403)', async () => {
+  const r = await invoke(gestorA, { email: 'qualquer@teste.trombetas.dev', role: 'polo_admin' })
+  assert(r.status === 403, `status ${r.status} ${JSON.stringify(r.payload)}`)
+})
+
+await check('Convite: Responsável de Grupo não pode convidar (403)', async () => {
+  const { data: a } = await admin.from('churches').select('id').eq('name', 'ICM Manaíra').single()
+  const r = await invoke(respA1, { email: 'qualquer@teste.trombetas.dev', role: 'reader', church_id: a.id })
+  assert(r.status === 403, `status ${r.status}`)
+})
+
+await check('Convite: sem sessão é recusado (401)', async () => {
+  const r = await invoke(anon, { email: 'qualquer@teste.trombetas.dev', role: 'reader' })
+  assert(r.status === 401, `status ${r.status}`)
+})
+
+await check('Convite: Gestor A adiciona perfil a usuário existente da igreja A (sem e-mail)', async () => {
+  const { data: g } = await admin
+    .from('assistance_groups')
+    .select('id, church_id')
+    .eq('name', '[TESTE RLS] Grupo A1')
+    .single()
+  const r = await invoke(gestorA, {
+    email: 'rls.leitor.a@teste.trombetas.dev',
+    role: 'group_leader',
+    church_id: g.church_id,
+    group_id: g.id,
+  })
+  assert(
+    r.status === 200 && r.payload?.ok && r.payload.invited === false,
+    `status ${r.status} ${JSON.stringify(r.payload)}`,
+  )
+  // Limpeza: o próprio gestor remove a atribuição criada.
+  const { data: removed } = await gestorA
+    .from('role_assignments')
+    .delete()
+    .eq('role', 'group_leader')
+    .eq('group_id', g.id)
+    .neq('user_id', (await respA1.auth.getUser()).data.user.id)
+    .select('id')
+  assert((removed ?? []).length === 1, 'não removeu a atribuição de teste')
 })
 
 // Fases seguintes acrescentam cenários aqui (check-in, máscara de telefone, etc.).
