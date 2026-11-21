@@ -37,17 +37,16 @@ export function StatTile({
 }) {
   const met = goal && goal.goal > 0 && goal.value >= goal.goal
   return (
-    <div className="rounded-lg border border-border/70 bg-card p-5">
-      <div className="flex items-center justify-between gap-2">
-        <span className="eyebrow">{label}</span>
-        {met && (
-          <span className="flex items-center gap-1 text-xs font-semibold text-accent-foreground">
-            <CheckCircle2 className="size-4 text-gold-shadow" strokeWidth={1.8} aria-hidden /> Meta atingida
-          </span>
-        )}
-      </div>
+    <div className="rounded-lg border border-border bg-card p-5">
+      <span className="eyebrow">{label}</span>
       <div className="num mt-2 text-[2.5rem] leading-none font-semibold tracking-tight">{value}</div>
       {hint && <div className="num mt-2 text-sm text-muted-foreground">{hint}</div>}
+      {met && (
+        <div className="mt-1 flex items-center gap-1 text-sm font-semibold text-accent-foreground">
+          <CheckCircle2 className="size-4 shrink-0 text-gold-shadow" strokeWidth={1.8} aria-hidden /> Meta
+          atingida
+        </div>
+      )}
       {goal && <GoalBar value={goal.value} goal={goal.goal} label={label} />}
     </div>
   )
@@ -110,7 +109,7 @@ export function StatCards({
           hint="Convidados presenciais"
         />
       </div>
-      <dl className="grid grid-cols-2 gap-x-6 gap-y-3 rounded-lg border border-border/70 bg-card px-5 py-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+      <dl className="grid grid-cols-2 gap-x-6 gap-y-3 rounded-lg border border-border bg-card px-5 py-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
         {secondary.map(([k, v]) => (
           <div key={k}>
             <dt className="text-xs text-muted-foreground">{k}</dt>

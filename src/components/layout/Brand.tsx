@@ -22,7 +22,7 @@ export function Brand({ eventName = 'Trombetas e Festas', logoUrl, className, li
     <div className={cn('leading-none', className)}>
       <div
         className={cn(
-          'font-[family-name:var(--font-display)] text-[1.35rem] font-bold tracking-wide uppercase',
+          'font-[family-name:var(--font-display)] text-[1.3rem] leading-tight font-bold',
           light ? 'text-white' : 'text-navy',
         )}
       >

@@ -22,6 +22,10 @@ export function LoginPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
+    if (!email.trim() || !password) {
+      setError('Informe o e-mail e a senha.')
+      return
+    }
     setError(null)
     setSubmitting(true)
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
@@ -64,7 +68,7 @@ export function LoginPage() {
             {error}
           </p>
         )}
-        <Button type="submit" size="lg" className="w-full" disabled={submitting || !email || !password}>
+        <Button type="submit" size="lg" className="w-full" disabled={submitting}>
           {submitting ? 'Entrando…' : 'Entrar'}
         </Button>
         <p className="text-center text-sm">

@@ -35,7 +35,7 @@ export function CommonCharts({ scope, stats }: { scope: Scope3; stats: GoalStats
   const cats = useCategories(scope)
   const days = fillDays(daily.data ?? [], (day) => ({ day, invites: 0, attendances: 0 }))
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <ChartCard
         title="Evolução diária"
         description="Convites cadastrados e presenças registradas por dia (horário de Fortaleza)."
@@ -142,7 +142,7 @@ export function PoloDashboard() {
         churches={churches.length}
         groups={groups.filter((g) => g.group_active).length}
       />
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <ChartCard
           title="Convites por igreja"
           description="Convidados únicos cadastrados. Toque para abrir o painel da igreja."
@@ -332,7 +332,7 @@ export function GroupPanel({ groupId }: { groupId: string }) {
   return (
     <div className="space-y-5">
       <StatCards stats={summary.data} loading={summary.isLoading} />
-      <section className="rounded-lg border border-border/70 bg-card p-5">
+      <section className="rounded-lg border border-border bg-card p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h3 className="font-[family-name:var(--font-display)] text-xl font-bold">Desempenho por membro</h3>
           <span className="text-sm text-muted-foreground">

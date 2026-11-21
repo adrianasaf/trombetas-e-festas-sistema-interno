@@ -296,7 +296,7 @@ function GuestReport() {
       )}
       {report.data?.length === 0 && <EmptyState title="Nenhum convidado com esses filtros" />}
       {rows.length > 0 && (
-        <div className="max-h-[70vh] overflow-auto rounded-lg border border-border/70 bg-card">
+        <div className="max-h-[70vh] overflow-auto rounded-lg border border-border bg-card">
           <table className="table-pro">
             <thead>
               <tr>

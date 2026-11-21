@@ -15,6 +15,10 @@ export function ForgotPasswordPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
+    if (!email.trim()) {
+      setError('Informe o e-mail.')
+      return
+    }
     setError(null)
     setSubmitting(true)
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
@@ -59,7 +63,7 @@ export function ForgotPasswordPage() {
               {error}
             </p>
           )}
-          <Button type="submit" size="lg" className="w-full" disabled={submitting || !email}>
+          <Button type="submit" size="lg" className="w-full" disabled={submitting}>
             {submitting ? 'Enviando…' : 'Enviar link'}
           </Button>
           <p className="text-center text-sm">

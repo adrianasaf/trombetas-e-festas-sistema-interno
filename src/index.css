@@ -27,10 +27,11 @@
   --color-sky: var(--sky);
   --color-halo: var(--halo);
   --color-ocean: var(--ocean);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  /* Raio único de 8 px em toda a interface */
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: var(--radius);
   --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
 }
@@ -47,7 +48,7 @@
   --dourado-sombra: #b89037;
   --nevoa: #f4f8fa;
 
-  --radius: 0.375rem;
+  --radius: 0.5rem;
   --navy: var(--azul-profundo);
   --gold: var(--dourado);
   --gold-bright: var(--dourado-brilho);
@@ -66,12 +67,12 @@
   --accent: #f6efdf;
   --accent-foreground: #6b5314;
   --muted: #edf3f6;
-  --muted-foreground: #4e6672; /* 6,1:1 sobre branco */
+  --muted-foreground: #5b7280; /* texto secundário, AA sobre branco e névoa */
   --destructive: #b42318;
   --destructive-foreground: #ffffff;
   --success: #147a3d;
   --warning: #9a5b06;
-  --border: #d9e4ea;
+  --border: #e3ebf0;
   --input: #b9cbd5;
   --ring: var(--azul-oceano); /* foco visível: 4,8:1 sobre branco */
   --zebra: #f7fafb;
@@ -160,7 +161,8 @@
     border-bottom: 1px solid var(--border);
   }
   .table-pro tbody td {
-    padding: 0.625rem 0.75rem;
+    height: 48px;
+    padding: 0.75rem;
     border-bottom: 1px solid var(--border);
     vertical-align: top;
   }

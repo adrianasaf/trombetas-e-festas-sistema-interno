@@ -88,11 +88,7 @@ export function AppShell({
                     isActive ? 'opacity-100' : 'opacity-0',
                   )}
                 />
-                <Icon
-                  aria-hidden
-                  strokeWidth={1.6}
-                  className={cn('size-[18px] shrink-0', isActive ? 'text-gold-bright' : 'text-white/70')}
-                />
+                <Icon aria-hidden strokeWidth={1.6} className="size-[18px] shrink-0" />
                 {item.label}
               </>
             )}
@@ -105,7 +101,6 @@ export function AppShell({
   const brandBlock = (
     <div className="px-5 pt-6 pb-5">
       <Brand eventName={eventName} logoUrl={logoUrl} light />
-      <div className="gold-rule mt-5 opacity-70" />
     </div>
   )
 
@@ -142,7 +137,7 @@ export function AppShell({
         )}
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="no-print sticky top-0 z-30 flex items-center gap-3 border-b border-border/70 bg-card/95 px-4 py-2 backdrop-blur md:px-6">
+          <header className="no-print sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-card/95 px-4 py-2 backdrop-blur md:px-6">
             <Button
               variant="ghost"
               size="icon"
@@ -164,7 +159,7 @@ export function AppShell({
             </div>
           </header>
           <main className="flex-1 px-4 py-5 md:px-8 md:py-7">{children}</main>
-          <footer className="no-print border-t border-border/70 px-4 py-4 text-center text-xs text-muted-foreground">
+          <footer className="no-print px-4 py-6 text-center text-xs text-muted-foreground">
             Igreja Cristã Maranata · Polo Torre ·{' '}
             <Link to="/privacidade" className="underline underline-offset-2 hover:text-foreground">
               Política de privacidade

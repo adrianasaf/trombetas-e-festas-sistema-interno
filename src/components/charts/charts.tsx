@@ -23,7 +23,7 @@ export function ChartCard({
 }) {
   const [showTable, setShowTable] = useState(false)
   return (
-    <section className="break-inside-avoid rounded-lg border border-border/70 bg-card p-5" aria-label={title}>
+    <section className="min-w-0 break-inside-avoid rounded-lg border border-border bg-card p-5" aria-label={title}>
       <div className="mb-3 flex items-start justify-between gap-2">
         <div>
           <h3 className="font-[family-name:var(--font-display)] text-xl font-bold">{title}</h3>

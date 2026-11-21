@@ -27,25 +27,18 @@ export function EventHero({ event }: { event: EventRow }) {
   else status = 'Contagem regressiva'
 
   return (
-    <section className="relative mb-6 overflow-hidden rounded-lg bg-navy text-white">
-      <img
-        src="/brand/trombetas-2026.png"
-        alt=""
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 right-0 hidden h-full w-1/2 object-cover object-[2%_center] opacity-90 md:block"
-        style={{ maskImage: 'linear-gradient(90deg, transparent, #000 35%)' }}
-      />
-      <div className="relative grid gap-6 p-6 md:max-w-[58%] md:p-8">
+    <section className="mb-8 rounded-lg bg-navy text-white">
+      <div className="flex flex-col gap-6 p-6 md:flex-row md:items-end md:justify-between md:p-8">
         <div>
           <p className="text-[0.7rem] font-semibold tracking-[0.28em] text-gold-bright uppercase">{status}</p>
-          <h2 className="mt-2 text-[2rem] text-white md:text-[2.5rem]">{event.name}</h2>
+          <h2 className="mt-2 text-[2rem] text-white">{event.name}</h2>
           <p className="mt-1 text-white/85">
             {event.starts_at ? formatDateTime(event.starts_at) : 'Defina a data em Configurações'}
             {event.location ? ` · ${event.location}` : ''}
           </p>
         </div>
         {diff !== null && diff > 0 && event.status !== 'encerrado' && (
-          <div className="flex gap-3" aria-live="off">
+          <div className="flex gap-8" aria-live="off">
             <Unit value={days!} label={days === 1 ? 'dia' : 'dias'} />
             <Unit value={hours!} label={hours === 1 ? 'hora' : 'horas'} />
           </div>
@@ -57,10 +50,8 @@ export function EventHero({ event }: { event: EventRow }) {
 
 function Unit({ value, label }: { value: number; label: string }) {
   return (
-    <div className="min-w-24 rounded-md border border-white/15 px-4 py-3">
-      <div className="num font-[family-name:var(--font-display)] text-[2.75rem] leading-none font-bold text-gold-bright">
-        {value}
-      </div>
+    <div className="min-w-20">
+      <div className="num text-[2.5rem] leading-none font-semibold text-gold-bright">{value}</div>
       <div className="mt-1 text-[0.7rem] tracking-[0.24em] text-white/80 uppercase">{label}</div>
     </div>
   )

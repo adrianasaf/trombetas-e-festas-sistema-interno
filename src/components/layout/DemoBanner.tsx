@@ -5,7 +5,7 @@ export function DemoBanner() {
   return (
     <div
       role="status"
-      className="no-print bg-gold px-4 py-1 text-center text-[0.7rem] font-semibold tracking-[0.2em] text-navy uppercase"
+      className="no-print flex h-6 items-center justify-center bg-gold/15 px-4 text-[11px] font-medium tracking-[0.12em] text-navy uppercase"
     >
       Ambiente de demonstração · dados fictícios
     </div>
