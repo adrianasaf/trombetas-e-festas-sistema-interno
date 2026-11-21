@@ -299,7 +299,11 @@ await check('Fase 3: Responsável A1 não cadastra membro no grupo A2', async ()
 await check('Fase 3: Gestor A transfere membro A1 → A2 e o histórico é gravado', async () => {
   const a1 = await groupId('[TESTE RLS] Grupo A1')
   const a2 = await groupId('[TESTE RLS] Grupo A2')
-  const { data: m } = await gestorA.from('members').select('id').eq('full_name', '[TESTE RLS] Membro A').single()
+  const { data: m } = await gestorA
+    .from('members')
+    .select('id')
+    .eq('full_name', '[TESTE RLS] Membro A')
+    .single()
   const up = await gestorA.from('members').update({ group_id: a2.id }).eq('id', m.id).select('group_id')
   assert(up.data?.[0]?.group_id === a2.id, up.error?.message ?? 'não transferiu')
   const { data: h } = await gestorA
@@ -307,16 +311,155 @@ await check('Fase 3: Gestor A transfere membro A1 → A2 e o histórico é grava
     .select('from_group_id, to_group_id')
     .eq('member_id', m.id)
     .eq('to_group_id', a2.id)
-  assert(h?.some((r) => r.from_group_id === a1.id), 'histórico não registrado')
+  assert(
+    h?.some((r) => r.from_group_id === a1.id),
+    'histórico não registrado',
+  )
   await gestorA.from('members').update({ group_id: a1.id }).eq('id', m.id)
 })
 
 await check('Fase 3: Gestor A não move grupo para outra igreja', async () => {
   const a1 = await groupId('[TESTE RLS] Grupo A1')
   const b1 = await groupId('[TESTE RLS] Grupo B1')
-  const { error } = await gestorA.from('assistance_groups').update({ church_id: b1.church_id }).eq('id', a1.id)
+  const { error } = await gestorA
+    .from('assistance_groups')
+    .update({ church_id: b1.church_id })
+    .eq('id', a1.id)
   assert(error, 'mudança aceita')
 })
+
+// ---- Fase 4: convidados, consentimento e duplicidades ----
+const memberId = async (name) =>
+  (await admin.from('members').select('id').eq('full_name', name).single()).data.id
+const created = []
+const rpcGuest = (client, args) =>
+  client.rpc('create_guest', {
+    p_member_id: args.member,
+    p_full_name: args.name,
+    p_phone: args.phone ?? null,
+    p_category: args.category ?? 'homem',
+    p_consent: args.consent ?? true,
+    p_guardian_name: args.guardianName ?? null,
+    p_guardian_phone: args.guardianPhone ?? null,
+  })
+
+await check(
+  'Fase 4: Responsável A1 cadastra convidado do membro A com snapshot de igreja/grupo',
+  async () => {
+    const mA = await memberId('[TESTE RLS] Membro A')
+    const { data, error } = await rpcGuest(respA1, {
+      member: mA,
+      name: '[TESTE RLS] F4 Adulto',
+      phone: '(83) 99000-4001',
+    })
+    assert(!error, error?.message)
+    created.push(data.id)
+    const { data: ref } = await respA1
+      .from('guest_referrals')
+      .select('member_id, is_primary')
+      .eq('guest_id', data.id)
+    assert(ref?.length === 1 && ref[0].member_id === mA && ref[0].is_primary, 'snapshot ausente')
+    const { data: c } = await respA1.from('guest_consents').select('recorded_by').eq('guest_id', data.id)
+    assert(c?.length === 1, 'consentimento não gravado')
+  },
+)
+
+await check('Fase 4: cadastro sem consentimento é recusado', async () => {
+  const mA = await memberId('[TESTE RLS] Membro A')
+  const { error } = await rpcGuest(respA1, {
+    member: mA,
+    name: '[TESTE RLS] F4 Sem consentimento',
+    phone: '83990004002',
+    consent: false,
+  })
+  assert(error && /consentimento/.test(error.message), error?.message ?? 'aceito')
+})
+
+await check('Fase 4: criança com responsável legal (sem telefone próprio)', async () => {
+  const mA = await memberId('[TESTE RLS] Membro A')
+  const { data, error } = await rpcGuest(respA1, {
+    member: mA,
+    name: '[TESTE RLS] F4 Criança',
+    category: 'crianca',
+    guardianName: 'Responsável Teste',
+    guardianPhone: '83990004003',
+  })
+  assert(!error, error?.message)
+  created.push(data.id)
+})
+
+await check('Fase 4: Gestor A não cadastra convidado para membro da igreja B', async () => {
+  const mB = await memberId('[TESTE RLS] Membro B')
+  const { error } = await rpcGuest(gestorA, {
+    member: mB,
+    name: '[TESTE RLS] F4 Invasor',
+    phone: '83990004004',
+  })
+  assert(error, 'aceito')
+})
+
+await check('Fase 4: Recepção e Leitor não cadastram convidado por membro', async () => {
+  const mA = await memberId('[TESTE RLS] Membro A')
+  const r1 = await rpcGuest(recepcao, { member: mA, name: '[TESTE RLS] F4 R', phone: '83990004005' })
+  const r2 = await rpcGuest(leitorA, { member: mA, name: '[TESTE RLS] F4 L', phone: '83990004006' })
+  assert(r1.error && r2.error, 'aceito')
+})
+
+await check(
+  'Fase 4: duplicidade por telefone → revisão; Responsável não mescla; Gestor mescla com crédito do 1º',
+  async () => {
+    const mA = await memberId('[TESTE RLS] Membro A')
+    const first = await rpcGuest(respA1, {
+      member: mA,
+      name: '[TESTE RLS] F4 Duplicado Silva',
+      phone: '83990004099',
+    })
+    assert(!first.error, first.error?.message)
+    const second = await rpcGuest(gestorA, {
+      member: mA,
+      name: '[TESTE RLS] F4 Duplicado da Silva',
+      phone: '(83) 99000-4099',
+    })
+    assert(!second.error && second.data.possible_duplicate, 'não marcou duplicidade')
+    created.push(first.data.id, second.data.id)
+    const { data: list } = await gestorA.rpc('list_duplicate_reviews', { p_status: 'pendente' })
+    const review = list.find((r) => r.a_id === second.data.id || r.b_id === second.data.id)
+    assert(review, 'revisão não listada para o Gestor')
+    const viaLeader = await respA1.rpc('list_duplicate_reviews', { p_status: 'pendente' })
+    assert((viaLeader.data ?? []).length === 0, 'Responsável viu a fila')
+    const leaderMerge = await respA1.rpc('merge_guests', {
+      p_review_id: review.id,
+      p_keep_guest_id: second.data.id,
+    })
+    assert(leaderMerge.error, 'Responsável mesclou')
+    const merge = await gestorA.rpc('merge_guests', {
+      p_review_id: review.id,
+      p_keep_guest_id: second.data.id,
+    })
+    assert(!merge.error, merge.error?.message)
+    const { data: kept } = await gestorA.from('guests').select('created_by').eq('id', second.data.id).single()
+    const { data: refs } = await gestorA
+      .from('guest_referrals')
+      .select('is_primary, created_by')
+      .eq('guest_id', second.data.id)
+    const primary = refs.find((r) => r.is_primary)
+    assert(
+      refs.length === 2 && primary.created_by !== kept.created_by,
+      'crédito não ficou com o primeiro cadastro',
+    )
+  },
+)
+
+await check('Fase 4: Gestor A não lê convidado da igreja B pela fila nem pela tabela', async () => {
+  const { data } = await gestorA.from('guests').select('id').eq('full_name', '[TESTE RLS] Convidado B')
+  assert((data ?? []).length === 0, 'leu')
+})
+
+// Limpeza dos convidados criados nesta execução (o registro mesclado sai junto com o mantido).
+for (const id of [...created].reverse()) {
+  await admin.from('guests').delete().eq('merged_into_id', id)
+  await admin.from('guests').delete().eq('id', id)
+}
 
 // Fases seguintes acrescentam cenários aqui (check-in, máscara de telefone, etc.).
 const extra = path.join(root, 'scripts/testar-rls.extra.mjs')

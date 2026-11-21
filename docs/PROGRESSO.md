@@ -5,7 +5,7 @@ Ao retomar uma sessão, continue da primeira fase não marcada. Detalhes de cada
 - [x] **Fase 1** — Estrutura do projeto, repositório, CI básico (lint + typecheck + testes no GitHub Actions)
 - [x] **Fase 2** — Banco, migrations, RLS, auth e perfis (DEV aplicado; e-mails dependem de SMTP próprio)
 - [x] **Fase 3** — Igrejas, grupos e membros
-- [ ] **Fase 4** — Convidados, consentimento e duplicidades
+- [x] **Fase 4** — Convidados, consentimento e duplicidades
 - [ ] **Fase 5** — Motor de metas e snapshots
 - [ ] **Fase 6** — Check-in, walk-in, fila de retentativa e tempo real
 - [ ] **Fase 7** — Dashboards

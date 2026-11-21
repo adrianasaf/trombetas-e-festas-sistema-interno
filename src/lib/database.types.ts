@@ -1057,6 +1057,25 @@ export type Database = {
           name: string
         }[]
       }
+      create_guest: {
+        Args: {
+          p_category: Database["public"]["Enums"]["guest_category"]
+          p_consent: boolean
+          p_event_id?: string
+          p_full_name: string
+          p_guardian_name?: string
+          p_guardian_phone?: string
+          p_invite_status?: Database["public"]["Enums"]["invite_status"]
+          p_is_authority?: boolean
+          p_is_other_church_pastor?: boolean
+          p_member_id: string
+          p_mode?: Database["public"]["Enums"]["participation_mode"]
+          p_notes?: string
+          p_phone: string
+          p_transport?: Database["public"]["Enums"]["transport_need"]
+        }
+        Returns: Json
+      }
       find_user_id_by_email: { Args: { p_email: string }; Returns: string }
       group_overview: {
         Args: { p_church_id?: string }
@@ -1073,6 +1092,37 @@ export type Database = {
           name: string
         }[]
       }
+      list_duplicate_reviews: {
+        Args: {
+          p_event_id?: string
+          p_status?: Database["public"]["Enums"]["duplicate_status"]
+        }
+        Returns: {
+          a_category: Database["public"]["Enums"]["guest_category"]
+          a_church: string
+          a_created_at: string
+          a_group: string
+          a_id: string
+          a_member: string
+          a_name: string
+          a_phone: string
+          b_category: Database["public"]["Enums"]["guest_category"]
+          b_church: string
+          b_created_at: string
+          b_group: string
+          b_id: string
+          b_member: string
+          b_name: string
+          b_phone: string
+          church_id: string
+          created_at: string
+          id: string
+          reason: string
+          resolution_note: string
+          similarity: number
+          status: Database["public"]["Enums"]["duplicate_status"]
+        }[]
+      }
       list_manageable_users: {
         Args: never
         Returns: {
@@ -1084,12 +1134,28 @@ export type Database = {
           last_sign_in_at: string
         }[]
       }
+      merge_guests: {
+        Args: { p_keep_guest_id: string; p_note?: string; p_review_id: string }
+        Returns: Json
+      }
       normalize_name: { Args: { p_name: string }; Returns: string }
       normalize_phone: {
         Args: { p_default_ddd?: string; p_input: string }
         Returns: string
       }
+      reassign_guest_credit: {
+        Args: {
+          p_guest_id: string
+          p_justification: string
+          p_member_id: string
+        }
+        Returns: undefined
+      }
       request_ip: { Args: never; Returns: string }
+      resolve_duplicate_distinct: {
+        Args: { p_note?: string; p_review_id: string }
+        Returns: undefined
+      }
       write_audit: {
         Args: {
           p_action: string

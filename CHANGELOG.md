@@ -2,6 +2,27 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Fase 4] — 2026-11-21 — Convidados, consentimento e duplicidades
+
+### Adicionado
+- RPC `create_guest`: cadastro sempre a partir de um membro, com snapshot de igreja/grupo em
+  `guest_referrals`, consentimento obrigatório gravado em `guest_consents` (data, hora, usuário e texto;
+  para criança/adolescente, consentimento do responsável legal — LGPD art. 14), validação de telefone
+  (E.164), responsável legal obrigatório para menores, limite de 500 caracteres nas observações e
+  bloqueio para membro inativo e edição encerrada.
+- Regras automáticas: modalidade Online zera o transporte; "Precisa de transporte" cria/cancela a
+  solicitação no módulo de transporte.
+- Detecção de duplicidade (telefone do convidado ou do responsável + similaridade de nome com
+  `pg_trgm`), sem bloquear o cadastro; reavaliada quando nome ou telefone mudam.
+- RPCs `list_duplicate_reviews`, `merge_guests` (mantém um registro, preserva indicações, consentimentos e
+  presenças; crédito com o primeiro cadastro), `resolve_duplicate_distinct` e `reassign_guest_credit`
+  (justificativa obrigatória, auditada).
+- Seletor de edição do evento no topo; edição encerrada exibida como somente leitura.
+- Telas: Convidados (busca por nome/telefone e filtros de igreja, grupo, categoria, situação, modalidade,
+  transporte, marcação especial e duplicidade), ficha do convidado (destaque de presença, dados,
+  consentimento, membros que indicaram, reatribuição de crédito, exclusão), Duplicidades (lado a lado,
+  mesclar ou "pessoas diferentes") e cadastro rápido com 5 linhas + "adicionar mais" na ficha do membro.
+
 ## [Fase 3] — 2026-11-21 — Igrejas, grupos e membros
 
 ### Adicionado

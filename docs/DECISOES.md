@@ -85,5 +85,24 @@ Decisões tomadas onde a especificação era omissa ou ambígua. Formato: contex
 ### D-022 — Contagens via RPC agregada
 - **Decisão:** as telas de igrejas e grupos usam `church_overview()`/`group_overview()` em vez de contar linhas no cliente, para que o Leitor (sem acesso a membros) veja os totais e para não trafegar dados pessoais.
 
+## Fase 4
+
+### D-023 — Critério de possível duplicidade
+- **Decisão:** vai para a fila de revisão quando, na mesma edição, outro convidado ativo tem o **mesmo telefone** (do convidado ou do responsável) **ou** nome com similaridade trigram ≥ 0,8. O motivo exibido distingue "mesmo telefone e nome parecido" (similaridade ≥ 0,5), "mesmo telefone, nome diferente (pode ser da mesma família)" e "nome muito parecido".
+- **Motivo:** a especificação manda comparar telefone + similaridade de nome e não bloquear famílias; mostrar o motivo ajuda o revisor a decidir rápido.
+
+### D-024 — Mescla
+- **Decisão:** o revisor escolhe qual registro manter (dados). O crédito **sempre** vai para a indicação mais antiga, qualquer que seja o registro mantido. O registro descartado fica com `merged_into_id` e sai de todas as listas e estatísticas; indicações, consentimentos e presenças passam para o mantido. Se os dois tinham presença do mesmo tipo, a mais antiga continua ativa e a outra é revogada com o motivo "Mesclado".
+- Para mesclar registros de igrejas diferentes, é preciso ter acesso às duas (na prática, o Admin).
+
+### D-025 — Membro inativo não recebe novos convites
+- **Decisão:** `create_guest` recusa membro inativo. Os convites anteriores continuam contando.
+
+### D-026 — Cadastro rápido na ficha do membro
+- **Decisão:** as 5 linhas pedem só nome, telefone, categoria, responsável (se menor) e consentimento; a situação do convite começa como "Convidado" e modalidade/transporte como "Indefinido", completáveis depois na ficha.
+
+### D-027 — Exclusão de convidado
+- **Decisão:** Admin, Gestor da igreja e Responsável do grupo podem excluir enquanto a edição estiver aberta, mas o banco impede excluir quem tem presença registrada (o histórico de presença nunca é apagado).
+
 ### D-016 — Igreja nunca é excluída
 - **Decisão:** não há política de delete em `churches`, e um gatilho impede a exclusão física mesmo pelo dono do banco.

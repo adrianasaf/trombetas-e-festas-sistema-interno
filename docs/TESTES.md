@@ -35,6 +35,14 @@ Só aparece como **aprovado** o que foi de fato executado. Itens da seção 19 a
 | Interface | navegador local em 360 px: rota protegida redireciona ao login; sem erros no console | ✅ |
 | Lint, typecheck, testes, build | — | ✅ 84 testes |
 
+## Fase 4 — 2026-11-21
+
+| Verificação | Como | Resultado |
+|---|---|---|
+| Banco local (PGlite) | `supabase/tests/fase4-convidados.test.ts`: snapshot igreja/grupo; consentimento com usuário e data; consentimento obrigatório; telefone obrigatório/válido; criança sem telefone com responsável e consentimento do responsável (art. 14); menor sem responsável recusado; online zera transporte; "precisa de transporte" cria e online cancela solicitação; limite de 500 caracteres; escopo (Responsável fora do grupo, Gestor de outra igreja, Recepção, Leitor); membro inativo; edição encerrada; telefone igual não bloqueia e vai para revisão; família com mesmo telefone; fila invisível ao Responsável; Responsável não mescla; mescla mantém crédito do **primeiro** cadastro mesmo mantendo o registro mais novo; registro mesclado não conta duas vezes; mescla auditada; "pessoas diferentes"; reatribuição exige justificativa e é auditada; Responsável não reatribui; transferência posterior do membro não muda o crédito | ✅ 24/24 |
+| Frontend | validação do formulário (adulto, criança, consentimento, 500 caracteres) e rótulos | ✅ |
+| Banco real via API (DEV) | `npm run test:rls`: cadastro com snapshot e consentimento; recusa sem consentimento; criança com responsável; Gestor A bloqueado para membro da igreja B; Recepção/Leitor bloqueados; duplicidade por telefone → revisão; fila invisível ao Responsável; Responsável não mescla; Gestor mescla com crédito do primeiro cadastro; dados de teste removidos ao final | ✅ 32/32 (acumulado) |
+
 ## Situação da seção 19 da especificação
 
 | # | Teste | Situação |
@@ -42,8 +50,8 @@ Só aparece como **aprovado** o que foi de fato executado. Itens da seção 19 a
 | 1 | Login, convite, recuperação e redefinição de senha | ✅ login por senha via API; convite sem e-mail via Edge Function; ⏳ e-mails de convite e recuperação (dependem de SMTP próprio) |
 | 2 | Seed das 11 igrejas | ✅ local e no banco real (DEV) |
 | 3 | CRUD de grupos e membros, transferência | ✅ local e via API no banco real; telas logadas não verificadas no navegador (ver D-020) |
-| 4 | Cadastro de convidados, criança com responsável | pendente (Fase 4) |
-| 5 | Duplicidade, mescla, crédito do primeiro cadastro | pendente (Fase 4) |
+| 4 | Cadastro de convidados, criança com responsável | ✅ local e via API no banco real |
+| 5 | Duplicidade, mescla, crédito do primeiro cadastro | ✅ local e via API no banco real |
 | 6 | Metas 20/30/50 e data de corte | pendente (Fase 5) |
 | 7 | Check-in, duplicada, corrida concorrente | pendente (Fase 6) |
 | 8 | Desmarcação com histórico; Recepção impedida | pendente (Fase 6) |
