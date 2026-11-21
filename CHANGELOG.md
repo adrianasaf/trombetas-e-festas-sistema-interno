@@ -2,6 +2,23 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Extra] — 2026-11-21 — Identidade visual profissional
+
+### Alterado (somente a camada visual; sem mudanças em regras, banco ou RLS)
+- Tokens de cor medidos na arte oficial (azul-céu, halo, oceano, profundo, dourados e névoa) e regras de
+  contraste AA: texto branco só sobre azul-profundo; dourado como texto só no tom brilho sobre
+  azul-profundo; foco visível em azul-oceano.
+- Tipografia local (sem CDN): Cormorant Garamond nos títulos e Inter nos textos e números (tabulares).
+- Login, recuperação e definição de senha com a arte oficial (`public/brand/trombetas-2026.png`) na metade
+  da tela ou numa faixa no celular.
+- Menu lateral azul-profundo com ícones de traço fino e filete dourado no item ativo; cabeçalho com nome
+  do evento em serifada e a data.
+- Dashboard: faixa do evento com contagem regressiva; indicadores com número principal, rótulo discreto e
+  barra fina até a meta (dourada quando atingida); gráficos presencial = azul-céu, online = azul-halo,
+  meta = filete dourado nos rankings.
+- Tabelas com zebra sutil e cabeçalho fixo; abaixo de 640 px viram cartões.
+- Cantos menores, sem sombras pesadas; textos de estado vazio mais diretos.
+
 ## [Fase 10] — 2026-11-21 — Preparação para implantação
 
 ### Adicionado

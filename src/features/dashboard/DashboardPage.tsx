@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/features/auth/AuthProvider'
 import { useChurchOverview } from '@/features/churches/churchQueries'
 import { useEvent } from '@/features/events/EventProvider'
-import { formatDateTime } from '@/lib/format'
+import { EventHero } from './EventHero'
 import { ChurchPanel, GroupPanel, PoloDashboard } from './Panels'
 
 /**
@@ -38,17 +38,13 @@ export function DashboardPage() {
   }
 
   const header = (
-    <PageHeader
-      title={polo ? 'Dashboard geral do Polo' : 'Painel'}
-      description={
-        <>
-          {current.name}
-          {current.starts_at ? ` · ${formatDateTime(current.starts_at)}` : ''}
-          {current.location ? ` · ${current.location}` : ''}
-          {' · '}atualiza sozinho em tempo real
-        </>
-      }
-    />
+    <>
+      <EventHero event={current} />
+      <PageHeader
+        title={polo ? 'Visão geral do Polo' : 'Painel'}
+        description={<>Os números se atualizam sozinhos, em tempo real.</>}
+      />
+    </>
   )
 
   if (polo) {

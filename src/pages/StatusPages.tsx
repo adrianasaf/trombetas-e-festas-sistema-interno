@@ -6,7 +6,7 @@ function StatusLayout({ code, title, text }: { code: string; title: string; text
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-4 p-6 text-center">
       <Brand />
-      <div className="text-6xl font-bold text-gold">{code}</div>
+      <div className="num font-[family-name:var(--font-display)] text-7xl font-bold text-sky">{code}</div>
       <h1 className="text-2xl font-bold">{title}</h1>
       <p className="max-w-md text-muted-foreground">{text}</p>
       <Button asChild size="lg">

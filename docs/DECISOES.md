@@ -176,5 +176,14 @@ Decisões tomadas onde a especificação era omissa ou ambígua. Formato: contex
 ### D-047 — E2E e anonimização pendentes por decisão do usuário
 - **Decisão:** em 21/11/2026 o usuário pediu para interromper o Playwright e pular a validação da anonimização. Ambos ficam registrados como pendentes; nada foi declarado aprovado.
 
+## Identidade visual
+
+### D-048 — Cores dos gráficos da marca
+- **Contexto:** o usuário definiu presencial = azul-céu `#3C7F9F`, online = azul-halo `#78B7D4` e meta = dourado. O validador da skill de visualização reprovou só o critério de saturação mínima (azuis da marca são acinzentados) e avisou do contraste do halo (2,15:1); a separação entre as duas cores passa com folga (ΔE 18, inclusive para daltonismo).
+- **Decisão:** usar as cores da marca, com compensação obrigatória: legenda, rótulos com valores, tooltip e "Ver tabela" em todos os gráficos. A meta aparece como filete dourado (decorativo, nunca como texto).
+
+### D-049 — Arte oficial
+- **Decisão:** a arte `trombetas-e-festas-2026-qr-code.png` (da pasta do usuário) foi copiada para `public/brand/trombetas-2026.png` e é usada só como imagem (login e faixa do Dashboard), sem recriar a logo da Igreja.
+
 ### D-016 — Igreja nunca é excluída
 - **Decisão:** não há política de delete em `churches`, e um gatilho impede a exclusão física mesmo pelo dono do banco.

@@ -4,8 +4,8 @@ import { numberFmt } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 /**
- * Gráficos leves em SVG/HTML (sem biblioteca). Paleta validada (skill dataviz):
- * série 1 = #2a78d6 (azul), série 2 = #eb6834 (laranja) — ver docs/DECISOES.md.
+ * Gráficos leves em SVG/HTML (sem biblioteca). Cores da marca: série 1 = azul-céu (presencial),
+ * série 2 = azul-halo (online), meta = dourado — ver docs/DECISOES.md (D-048).
  * Textos usam as cores de texto, nunca a cor da série. Toda visualização tem uma tabela equivalente.
  */
 export const SERIES = ['var(--series-1)', 'var(--series-2)'] as const
@@ -23,10 +23,10 @@ export function ChartCard({
 }) {
   const [showTable, setShowTable] = useState(false)
   return (
-    <section className="break-inside-avoid rounded-lg border bg-card p-4 shadow-sm" aria-label={title}>
+    <section className="break-inside-avoid rounded-lg border border-border/70 bg-card p-5" aria-label={title}>
       <div className="mb-3 flex items-start justify-between gap-2">
         <div>
-          <h3 className="font-bold">{title}</h3>
+          <h3 className="font-[family-name:var(--font-display)] text-xl font-bold">{title}</h3>
           {description && <p className="text-sm text-muted-foreground">{description}</p>}
         </div>
         {table && (
@@ -73,10 +73,13 @@ export interface BarRow {
 export function BarList({
   rows,
   max,
-  emptyText = 'Sem dados ainda.',
+  goalAt,
+  emptyText = 'Nada para mostrar ainda.',
 }: {
   rows: BarRow[]
   max?: number
+  /** Valor da meta no eixo (desenha um filete dourado). */
+  goalAt?: number
   emptyText?: string
 }) {
   const [hover, setHover] = useState<string | null>(null)
@@ -103,6 +106,13 @@ export function BarList({
                   opacity: hover && hover !== r.key ? 0.55 : 1,
                 }}
               />
+              {goalAt !== undefined && (
+                <span
+                  aria-hidden
+                  className="absolute -top-0.5 -bottom-0.5 w-[2px] bg-[var(--goal)]"
+                  style={{ left: `calc(${Math.min(100, (goalAt / top) * 100)}% - 1px)` }}
+                />
+              )}
             </div>
             {hover === r.key && r.detail && (
               <div role="tooltip" className="mt-1 rounded bg-foreground px-2 py-1 text-xs text-background">
@@ -322,12 +332,12 @@ export function LineChart({
 /** Tabela simples usada como alternativa acessível aos gráficos. */
 export function DataTable({ head, rows }: { head: string[]; rows: (string | number)[][] }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+    <div className="max-h-[28rem] overflow-auto">
+      <table className="table-pro">
         <thead>
-          <tr className="border-b text-left text-muted-foreground">
+          <tr>
             {head.map((h) => (
-              <th key={h} className="px-2 py-1.5 font-semibold">
+              <th key={h} scope="col">
                 {h}
               </th>
             ))}
@@ -335,9 +345,9 @@ export function DataTable({ head, rows }: { head: string[]; rows: (string | numb
         </thead>
         <tbody>
           {rows.map((r, i) => (
-            <tr key={i} className="border-b last:border-0">
+            <tr key={i}>
               {r.map((c, j) => (
-                <td key={j} className={cn('px-2 py-1.5', typeof c === 'number' && 'tabular-nums')}>
+                <td key={j} data-label={head[j]} className={cn(typeof c === 'number' && 'num')}>
                   {typeof c === 'number' ? numberFmt.format(c) : c}
                 </td>
               ))}

@@ -9,6 +9,16 @@ import { EventSelector, ReadOnlyBanner } from '@/features/events/EventSelector'
 import { AppShell } from './AppShell'
 import { UserMenu } from './UserMenu'
 
+const dateFmt = new Intl.DateTimeFormat('pt-BR', {
+  day: 'numeric',
+  month: 'long',
+  weekday: 'long',
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: 'America/Fortaleza',
+})
+const eventDateLabel = (iso: string) => dateFmt.format(new Date(iso)).replace(':00', 'h')
+
 function Shell() {
   const { roles } = useAuth()
   const { current, logoUrl } = useEvent()
@@ -18,6 +28,7 @@ function Shell() {
     <AppShell
       roles={roles}
       eventName={current?.name}
+      eventDate={current?.starts_at ? eventDateLabel(current.starts_at) : null}
       logoUrl={logoUrl}
       eventSelector={<EventSelector />}
       headerRight={
@@ -32,7 +43,7 @@ function Shell() {
         </>
       }
     >
-      <div className="-m-4 mb-4 md:-m-6 md:mb-6">
+      <div className="-mx-4 -mt-5 mb-5 md:-mx-8 md:-mt-7 md:mb-7">
         <ReadOnlyBanner />
       </div>
       <Outlet />

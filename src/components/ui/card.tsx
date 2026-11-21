@@ -5,14 +5,22 @@ type DivProps = React.HTMLAttributes<HTMLDivElement>
 
 export function Card({ className, ...props }: DivProps) {
   return (
-    <div className={cn('rounded-lg border bg-card text-card-foreground shadow-sm', className)} {...props} />
+    <div
+      className={cn('rounded-lg border border-border/70 bg-card text-card-foreground', className)}
+      {...props}
+    />
   )
 }
 export function CardHeader({ className, ...props }: DivProps) {
   return <div className={cn('flex flex-col gap-1.5 p-5', className)} {...props} />
 }
 export function CardTitle({ className, ...props }: DivProps) {
-  return <div className={cn('text-lg font-bold leading-tight', className)} {...props} />
+  return (
+    <div
+      className={cn('font-[family-name:var(--font-display)] text-xl font-bold leading-tight', className)}
+      {...props}
+    />
+  )
 }
 export function CardDescription({ className, ...props }: DivProps) {
   return <div className={cn('text-sm text-muted-foreground', className)} {...props} />

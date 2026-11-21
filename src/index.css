@@ -22,41 +22,64 @@
   --color-ring: var(--ring);
   --color-navy: var(--navy);
   --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-gold-shadow: var(--gold-shadow);
+  --color-sky: var(--sky);
+  --color-halo: var(--halo);
+  --color-ocean: var(--ocean);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-display: Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
 }
 
 :root {
-  --radius: 0.625rem;
-  --navy: #14213d;
-  --gold: #c9971c;
-  --background: #f7f8fb;
-  --foreground: #10182b;
+  /* Identidade do evento — cores medidas na arte oficial (public/brand/trombetas-2026.png) */
+  --azul-ceu: #3c7f9f;
+  --azul-halo: #78b7d4;
+  --azul-halo-2: #66a6c5;
+  --azul-oceano: #3877ab;
+  --azul-profundo: #1b4459;
+  --dourado: #c9a55c;
+  --dourado-brilho: #e4c587;
+  --dourado-sombra: #b89037;
+  --nevoa: #f4f8fa;
+
+  --radius: 0.375rem;
+  --navy: var(--azul-profundo);
+  --gold: var(--dourado);
+  --gold-bright: var(--dourado-brilho);
+  --gold-shadow: var(--dourado-sombra);
+  --sky: var(--azul-ceu);
+  --halo: var(--azul-halo);
+  --ocean: var(--azul-oceano);
+  --background: var(--nevoa);
+  --foreground: var(--azul-profundo);
   --card: #ffffff;
-  --card-foreground: #10182b;
-  --primary: #14213d;
+  --card-foreground: var(--azul-profundo);
+  --primary: var(--azul-profundo);
   --primary-foreground: #ffffff;
-  --secondary: #e8ecf4;
-  --secondary-foreground: #14213d;
-  --accent: #f6ecd2;
-  --accent-foreground: #5c4307;
-  --muted: #eef1f6;
-  --muted-foreground: #4b5568;
+  --secondary: #e6eff4;
+  --secondary-foreground: var(--azul-profundo);
+  --accent: #f6efdf;
+  --accent-foreground: #6b5314;
+  --muted: #edf3f6;
+  --muted-foreground: #4e6672; /* 6,1:1 sobre branco */
   --destructive: #b42318;
   --destructive-foreground: #ffffff;
   --success: #147a3d;
-  --warning: #a15c07;
-  --border: #d6dbe5;
-  --input: #c4cbd8;
-  --ring: #c9971c;
-  /* Gráficos: paleta categórica validada (skill dataviz), slots 1 e 2 */
-  --series-1: #2a78d6;
-  --series-2: #eb6834;
-  --grid: #e6e9ef;
+  --warning: #9a5b06;
+  --border: #d9e4ea;
+  --input: #b9cbd5;
+  --ring: var(--azul-oceano); /* foco visível: 4,8:1 sobre branco */
+  --zebra: #f7fafb;
+  /* Gráficos: presencial = azul-céu, online = azul-halo, meta = dourado (ver D-048) */
+  --series-1: var(--azul-ceu);
+  --series-2: var(--azul-halo);
+  --goal: var(--dourado-sombra);
+  --grid: #e3ecf1;
 }
 
 @layer base {
@@ -71,11 +94,128 @@
     color: var(--foreground);
     font-family: var(--font-sans);
     font-size: 16px;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: 0.005em;
+    line-height: 1.15;
+  }
+  h1 {
+    font-size: 2rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+  }
+  h3 {
+    font-weight: 600;
   }
   :focus-visible {
     outline: 3px solid var(--ring);
     outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Rótulo pequeno em caixa alta e espaçado, como o "2026" da arte */
+  .eyebrow {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+  /* Filete dourado decorativo */
+  .gold-rule {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--dourado) 20%, var(--dourado) 80%, transparent);
+  }
+
+  /* Tabelas: zebra sutil, cabeçalho fixo; abaixo de 640 px viram cartões (usa data-label nas células) */
+  .table-pro {
+    width: 100%;
+    font-size: 0.875rem;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  .table-pro thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--card);
+    text-align: left;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    border-bottom: 1px solid var(--border);
+  }
+  .table-pro tbody td {
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .table-pro tbody tr:nth-child(even) td {
+    background: var(--zebra);
+  }
+  .table-pro tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  @media (max-width: 639px) {
+    .table-pro thead {
+      display: none;
+    }
+    .table-pro,
+    .table-pro tbody,
+    .table-pro tr,
+    .table-pro td {
+      display: block;
+      width: 100%;
+    }
+    .table-pro tbody tr {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 0.5rem;
+      background: var(--card);
+      padding: 0.25rem 0;
+    }
+    .table-pro tbody tr:nth-child(even) td {
+      background: transparent;
+    }
+    .table-pro tbody td {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      border-bottom: 0;
+      padding: 0.375rem 0.75rem;
+      text-align: right;
+    }
+    .table-pro tbody td::before {
+      content: attr(data-label);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted-foreground);
+      text-align: left;
+    }
+    .table-pro tbody td[data-label='']::before,
+    .table-pro tbody td:not([data-label])::before {
+      content: none;
+    }
+    .table-pro tbody td:first-child {
+      font-weight: 600;
+      text-align: left;
+    }
   }
 }
 

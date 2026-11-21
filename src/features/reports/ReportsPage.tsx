@@ -296,31 +296,31 @@ function GuestReport() {
       )}
       {report.data?.length === 0 && <EmptyState title="Nenhum convidado com esses filtros" />}
       {rows.length > 0 && (
-        <div className="overflow-x-auto rounded-lg border bg-card">
-          <table className="w-full text-sm">
+        <div className="max-h-[70vh] overflow-auto rounded-lg border border-border/70 bg-card">
+          <table className="table-pro">
             <thead>
-              <tr className="border-b text-left text-muted-foreground">
-                <th className="px-3 py-2">Nome</th>
-                <th className="px-3 py-2">Igreja / grupo</th>
-                <th className="px-3 py-2">Membro</th>
-                <th className="px-3 py-2">Situação</th>
-                <th className="px-3 py-2">Presença</th>
+              <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Igreja / grupo</th>
+                <th scope="col">Membro</th>
+                <th scope="col">Situação</th>
+                <th scope="col">Presença</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.guest_id} className="border-b last:border-0">
-                  <td className="px-3 py-2 font-medium">
+                <tr key={r.guest_id}>
+                  <td data-label="" className="font-medium">
                     {r.full_name}
                     <span className="block text-xs text-muted-foreground">{CATEGORY_LABEL[r.category]}</span>
                   </td>
-                  <td className="px-3 py-2">
+                  <td data-label="Igreja / grupo">
                     {r.church_name}
                     {r.group_name ? ` / ${r.group_name}` : ''}
                   </td>
-                  <td className="px-3 py-2">{r.member_name ?? '—'}</td>
-                  <td className="px-3 py-2">{inviteStatusLabel(r.invite_status, r.mode)}</td>
-                  <td className="px-3 py-2">
+                  <td data-label="Membro">{r.member_name ?? '—'}</td>
+                  <td data-label="Situação">{inviteStatusLabel(r.invite_status, r.mode)}</td>
+                  <td data-label="Presença">
                     {r.presencial_at
                       ? `Presencial ${formatDateTime(r.presencial_at)}`
                       : r.online_at
@@ -487,28 +487,34 @@ function PerfTable({
         <p className="text-muted-foreground">Sem dados.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="table-pro">
             <thead>
-              <tr className="border-b text-left text-muted-foreground">
-                <th className="px-2 py-2">Nome</th>
-                <th className="px-2 py-2">Membros</th>
-                <th className="px-2 py-2">Convites</th>
-                <th className="px-2 py-2">Presença</th>
-                <th className="px-2 py-2">Online</th>
+              <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Membros</th>
+                <th scope="col">Convites</th>
+                <th scope="col">Presença</th>
+                <th scope="col">Online</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.key} className="border-b last:border-0">
-                  <td className="px-2 py-2 font-medium">{r.name}</td>
-                  <td className="px-2 py-2 tabular-nums">{r.members_goal_base}</td>
-                  <td className="px-2 py-2 tabular-nums">
+                <tr key={r.key}>
+                  <td data-label="" className="font-medium">
+                    {r.name}
+                  </td>
+                  <td data-label="Membros" className="num">
+                    {r.members_goal_base}
+                  </td>
+                  <td data-label="Convites" className="num">
                     {pctLabel(r.guests_unique, r.invites_goal, r.pct_invites)}
                   </td>
-                  <td className="px-2 py-2 tabular-nums">
+                  <td data-label="Presença" className="num">
                     {pctLabel(r.present_unique, r.attendance_goal, r.pct_attendance)}
                   </td>
-                  <td className="px-2 py-2 tabular-nums">{r.online_registered}</td>
+                  <td data-label="Online" className="num">
+                    {r.online_registered}
+                  </td>
                 </tr>
               ))}
             </tbody>

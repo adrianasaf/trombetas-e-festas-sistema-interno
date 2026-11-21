@@ -1,44 +1,112 @@
 import { useState, type ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import {
+  BarChart3,
+  Bus,
+  Church,
+  ClipboardCheck,
+  Copy,
+  FileText,
+  LayoutDashboard,
+  Menu,
+  Settings,
+  ShieldCheck,
+  UserCog,
+  UserRound,
+  Users,
+  X,
+  type LucideIcon,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { navForRoles, type AppRole } from '@/lib/roles'
 import { cn } from '@/lib/utils'
 import { Brand } from './Brand'
 import { DemoBanner } from './DemoBanner'
 
+/** Ícones lucide em traço fino e cor única (o item ativo ganha o filete dourado). */
+const ICONS: Record<string, LucideIcon> = {
+  '/': LayoutDashboard,
+  '/igrejas': Church,
+  '/grupos': Users,
+  '/membros': UserRound,
+  '/convidados': FileText,
+  '/check-in': ClipboardCheck,
+  '/transporte': Bus,
+  '/relatorios': BarChart3,
+  '/duplicidades': Copy,
+  '/usuarios': UserCog,
+  '/configuracoes': Settings,
+  '/auditoria': ShieldCheck,
+}
+
 interface AppShellProps {
   roles: readonly AppRole[]
   headerRight?: ReactNode
   eventSelector?: ReactNode
   eventName?: string
+  /** Texto curto da data do evento para o cabeçalho (ex.: "28 de novembro · 17h"). */
+  eventDate?: string | null
   logoUrl?: string | null
   children: ReactNode
 }
 
-export function AppShell({ roles, headerRight, eventSelector, eventName, logoUrl, children }: AppShellProps) {
+export function AppShell({
+  roles,
+  headerRight,
+  eventSelector,
+  eventName,
+  eventDate,
+  logoUrl,
+  children,
+}: AppShellProps) {
   const [open, setOpen] = useState(false)
   const items = navForRoles(roles)
 
   const nav = (
-    <nav aria-label="Menu principal" className="flex flex-col gap-1 p-3">
-      {items.map((item) => (
-        <NavLink
-          key={item.to}
-          to={item.to}
-          end={item.to === '/'}
-          onClick={() => setOpen(false)}
-          className={({ isActive }) =>
-            cn(
-              'flex min-h-11 items-center rounded-md px-3 text-base font-medium text-white/85 hover:bg-white/10',
-              isActive && 'bg-white/15 text-white shadow-[inset_3px_0_0_var(--gold)]',
-            )
-          }
-        >
-          {item.label}
-        </NavLink>
-      ))}
+    <nav aria-label="Menu principal" className="flex flex-col gap-0.5 px-3 py-4">
+      {items.map((item) => {
+        const Icon = ICONS[item.to] ?? LayoutDashboard
+        return (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.to === '/'}
+            onClick={() => setOpen(false)}
+            className={({ isActive }) =>
+              cn(
+                'group relative flex min-h-11 items-center gap-3 rounded-md px-3 text-[0.95rem] text-white/80 transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline-gold-bright',
+                isActive && 'bg-white/[0.09] font-semibold text-white',
+              )
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <span
+                  aria-hidden
+                  className={cn(
+                    'absolute top-2 bottom-2 left-0 w-[3px] rounded-r bg-gold transition-opacity',
+                    isActive ? 'opacity-100' : 'opacity-0',
+                  )}
+                />
+                <Icon
+                  aria-hidden
+                  strokeWidth={1.6}
+                  className={cn('size-[18px] shrink-0', isActive ? 'text-gold-bright' : 'text-white/70')}
+                />
+                {item.label}
+              </>
+            )}
+          </NavLink>
+        )
+      })}
     </nav>
+  )
+
+  const brandBlock = (
+    <div className="px-5 pt-6 pb-5">
+      <Brand eventName={eventName} logoUrl={logoUrl} light />
+      <div className="gold-rule mt-5 opacity-70" />
+    </div>
   )
 
   return (
@@ -46,26 +114,26 @@ export function AppShell({ roles, headerRight, eventSelector, eventName, logoUrl
       <DemoBanner />
       <div className="flex flex-1">
         <aside className="no-print hidden w-64 shrink-0 bg-navy lg:block">
-          <div className="border-b border-white/10 p-4">
-            <Brand eventName={eventName} logoUrl={logoUrl} light />
+          <div className="sticky top-0">
+            {brandBlock}
+            {nav}
           </div>
-          {nav}
         </aside>
 
         {open && (
           <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
-            <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
+            <div className="absolute inset-0 bg-navy/60" onClick={() => setOpen(false)} />
             <aside className="absolute inset-y-0 left-0 w-72 max-w-[85vw] overflow-y-auto bg-navy">
-              <div className="flex items-center justify-between border-b border-white/10 p-4">
-                <Brand eventName={eventName} logoUrl={logoUrl} light />
+              <div className="flex items-start justify-between">
+                {brandBlock}
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-white/10"
+                  className="m-2 text-white hover:bg-white/10"
                   onClick={() => setOpen(false)}
                   aria-label="Fechar menu"
                 >
-                  <X />
+                  <X strokeWidth={1.6} />
                 </Button>
               </div>
               {nav}
@@ -74,7 +142,7 @@ export function AppShell({ roles, headerRight, eventSelector, eventName, logoUrl
         )}
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="no-print sticky top-0 z-30 flex items-center gap-3 border-b bg-card px-4 py-2">
+          <header className="no-print sticky top-0 z-30 flex items-center gap-3 border-b border-border/70 bg-card/95 px-4 py-2 backdrop-blur md:px-6">
             <Button
               variant="ghost"
               size="icon"
@@ -82,20 +150,23 @@ export function AppShell({ roles, headerRight, eventSelector, eventName, logoUrl
               onClick={() => setOpen(true)}
               aria-label="Abrir menu"
             >
-              <Menu />
+              <Menu strokeWidth={1.6} />
             </Button>
-            <div className="lg:hidden">
-              <Brand eventName={eventName} logoUrl={logoUrl} />
+            <div className="min-w-0">
+              <div className="truncate font-[family-name:var(--font-display)] text-lg leading-tight font-bold sm:text-xl">
+                {eventName ?? 'Trombetas e Festas'}
+              </div>
+              {eventDate && <div className="eyebrow truncate !tracking-[0.14em]">{eventDate}</div>}
             </div>
             <div className="ml-auto flex items-center gap-2">
               {eventSelector}
               {headerRight}
             </div>
           </header>
-          <main className="flex-1 p-4 md:p-6">{children}</main>
-          <footer className="no-print border-t px-4 py-3 text-center text-sm text-muted-foreground">
-            Igreja Cristã Maranata — Polo Torre ·{' '}
-            <Link to="/privacidade" className="underline underline-offset-2">
+          <main className="flex-1 px-4 py-5 md:px-8 md:py-7">{children}</main>
+          <footer className="no-print border-t border-border/70 px-4 py-4 text-center text-xs text-muted-foreground">
+            Igreja Cristã Maranata · Polo Torre ·{' '}
+            <Link to="/privacidade" className="underline underline-offset-2 hover:text-foreground">
               Política de privacidade
             </Link>
           </footer>

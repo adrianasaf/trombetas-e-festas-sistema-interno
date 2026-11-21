@@ -249,6 +249,7 @@ function RankingCard({
     >
       <BarList
         max={Math.max(100, ...shown.map((r) => r.stats.pct_invites ?? 0))}
+        goalAt={100}
         rows={shown.map((r, i) => ({
           key: r.key,
           label: `${i + 1}º ${r.label}`,
@@ -301,6 +302,7 @@ export function ChurchPanel({ churchId }: { churchId: string }) {
           <BarList
             emptyText="Nenhum grupo cadastrado."
             max={Math.max(100, ...(groups.data ?? []).map((g) => g.pct_invites ?? 0))}
+            goalAt={100}
             rows={(groups.data ?? []).map((g) => ({
               key: g.group_id,
               label: g.group_active ? g.group_name : `${g.group_name} (inativo)`,
@@ -330,9 +332,9 @@ export function GroupPanel({ groupId }: { groupId: string }) {
   return (
     <div className="space-y-5">
       <StatCards stats={summary.data} loading={summary.isLoading} />
-      <section className="rounded-lg border bg-card p-4 shadow-sm">
+      <section className="rounded-lg border border-border/70 bg-card p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="font-bold">Desempenho por membro</h3>
+          <h3 className="font-[family-name:var(--font-display)] text-xl font-bold">Desempenho por membro</h3>
           <span className="text-sm text-muted-foreground">
             {met.length} cumpriram as duas metas · {improve.length} precisam melhorar
           </span>
@@ -344,22 +346,22 @@ export function GroupPanel({ groupId }: { groupId: string }) {
           </p>
         )}
         {rows.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="max-h-[32rem] overflow-auto">
+            <table className="table-pro">
               <thead>
-                <tr className="border-b text-left text-muted-foreground">
-                  <th className="px-2 py-2">Membro</th>
-                  <th className="px-2 py-2">Convidados</th>
-                  <th className="px-2 py-2">Presentes</th>
-                  <th className="px-2 py-2">Situação</th>
+                <tr>
+                  <th scope="col">Membro</th>
+                  <th scope="col">Convidados</th>
+                  <th scope="col">Presentes</th>
+                  <th scope="col">Situação</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((m) => {
                   const ok = m.met_invites && m.met_attendance
                   return (
-                    <tr key={m.member_id} className="border-b last:border-0">
-                      <td className="px-2 py-2">
+                    <tr key={m.member_id}>
+                      <td data-label="">
                         <Link
                           to={`/membros/${m.member_id}`}
                           className="font-medium underline-offset-2 hover:underline"
@@ -370,13 +372,13 @@ export function GroupPanel({ groupId }: { groupId: string }) {
                           <span className="ml-1 text-xs text-muted-foreground">(inativo)</span>
                         )}
                       </td>
-                      <td className="px-2 py-2 tabular-nums">
+                      <td data-label="Convidados" className="num">
                         {m.invited}/{m.invites_goal}
                       </td>
-                      <td className="px-2 py-2 tabular-nums">
+                      <td data-label="Presentes" className="num">
                         {m.present}/{m.attendance_goal}
                       </td>
-                      <td className="px-2 py-2">
+                      <td data-label="Situação">
                         {!m.in_goal ? (
                           <Badge variant="secondary">Fora da meta</Badge>
                         ) : ok ? (
