@@ -2,6 +2,14 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Fase 10] — 2026-11-21 — Preparação para implantação
+
+### Adicionado
+- README com execução local, variáveis de ambiente, configuração do Supabase (migrations, Edge Function,
+  Auth, SMTP próprio, URLs de redirecionamento, Storage, plano), publicação na Vercel e criação do
+  primeiro Administrador do Polo.
+- Primeiro Administrador do Polo cadastrado no DEV.
+
 ## [Fase 9] — 2026-11-21 — Auditoria, segurança, seed e carga (parcial)
 
 ### Adicionado

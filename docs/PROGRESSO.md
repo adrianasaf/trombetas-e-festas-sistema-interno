@@ -11,7 +11,7 @@ Ao retomar uma sessão, continue da primeira fase não marcada. Detalhes de cada
 - [x] **Fase 7** — Dashboards
 - [x] **Fase 8** — Transporte e relatórios
 - [x] **Fase 9** — Auditoria, revisão de segurança, seed de demonstração e teste de carga (parcial: ver pendências)
-- [ ] **Fase 10** — Preparação para implantação (Vercel + Supabase prod + SMTP + domínio)
+- [x] **Fase 10** — Preparação para implantação: README com Supabase, Vercel, SMTP e primeiro Admin (projeto de produção, SMTP e domínio ficam com o usuário)
 
 ## Ambiente
 - Supabase CLI vinculado ao DEV `zaawhfbmuogfyigxscta`; `.env.local` criado (fora do git).
