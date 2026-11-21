@@ -14,7 +14,12 @@ export function Brand({ eventName = 'Trombetas e Festas', logoUrl, className, li
   }
   return (
     <div className={cn('leading-tight', className)}>
-      <div className={cn('font-[family-name:var(--font-display)] text-xl font-bold', light ? 'text-white' : 'text-navy')}>
+      <div
+        className={cn(
+          'font-[family-name:var(--font-display)] text-xl font-bold',
+          light ? 'text-white' : 'text-navy',
+        )}
+      >
         {eventName}
       </div>
       <div className="text-xs font-semibold uppercase tracking-wider text-gold">ICM · Polo Torre</div>

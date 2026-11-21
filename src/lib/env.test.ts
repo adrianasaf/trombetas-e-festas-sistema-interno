@@ -9,7 +9,11 @@ describe('readEnv', () => {
     expect(r.config.appEnv).toBe('dev')
   })
   it('aceita configuração completa de produção', () => {
-    const r = readEnv({ VITE_SUPABASE_URL: 'https://x.supabase.co', VITE_SUPABASE_ANON_KEY: 'k', VITE_APP_ENV: 'PROD' })
+    const r = readEnv({
+      VITE_SUPABASE_URL: 'https://x.supabase.co',
+      VITE_SUPABASE_ANON_KEY: 'k',
+      VITE_APP_ENV: 'PROD',
+    })
     expect(r.ok).toBe(true)
     expect(r.config.appEnv).toBe('prod')
   })

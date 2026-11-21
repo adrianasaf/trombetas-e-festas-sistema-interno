@@ -22,6 +22,8 @@ A especificação oficial é [docs/PROMPT_MESTRE.md](docs/PROMPT_MESTRE.md) e **
 - Backend: Supabase (Postgres, Auth, Realtime, Storage, Edge Functions). Migrations em `supabase/migrations/`
   (Supabase CLI, `npx supabase db push`). Tipos: `npx supabase gen types typescript` → `src/lib/database.types.ts`.
 - Hospedagem: Vercel (push na `main` publica). CI: GitHub Actions (`.github/workflows/ci.yml`).
+  **A Vercel já foi conectada pelo usuário no painel, com as variáveis configuradas. Não criar outro projeto
+  na Vercel nem rodar `vercel link`.**
 - Testes: Vitest (lógica), scripts SQL/API com usuários de teste (RLS), Playwright (fluxos principais).
 - Supabase DEV: `zaawhfbmuogfyigxscta` (pode receber seed de demonstração). Produção: projeto separado, **nunca** rodar seed fictício.
 

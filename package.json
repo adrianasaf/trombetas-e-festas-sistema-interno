@@ -11,7 +11,13 @@
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test:db": "vitest run supabase/tests",
+    "test:rls": "node scripts/testar-rls.mjs",
+    "admin:criar": "node scripts/criar-primeiro-admin.mjs",
+    "db:marcar-dev": "node scripts/marcar-ambiente-dev.mjs",
+    "db:push": "supabase db push",
+    "db:types": "supabase gen types typescript --linked --schema public > src/lib/database.types.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -35,6 +41,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.17",
     "@eslint/js": "^9.39.5",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/jest-dom": "^6.9.1",
@@ -50,6 +57,7 @@
     "globals": "^17.14.0",
     "jsdom": "^26.1.0",
     "prettier": "^3.10.1",
+    "supabase": "^3.2.0",
     "tailwindcss": "^4.3.5",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.73.0",

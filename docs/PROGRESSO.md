@@ -3,7 +3,7 @@
 Ao retomar uma sessão, continue da primeira fase não marcada. Detalhes de cada fase em `CHANGELOG.md` e `docs/TESTES.md`.
 
 - [x] **Fase 1** — Estrutura do projeto, repositório, CI básico (lint + typecheck + testes no GitHub Actions)
-- [ ] **Fase 2** — Banco, migrations, RLS, auth e perfis
+- [ ] **Fase 2** — Banco, migrations, RLS, auth e perfis — *código e testes locais prontos; falta aplicar no DEV, publicar a Edge Function e rodar `npm run test:rls`*
 - [ ] **Fase 3** — Igrejas, grupos e membros
 - [ ] **Fase 4** — Convidados, consentimento e duplicidades
 - [ ] **Fase 5** — Motor de metas e snapshots

@@ -2,6 +2,30 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Fase 2 — em andamento] — 2026-11-21 — Banco, migrations, RLS, auth e perfis
+
+### Adicionado
+- Migrations versionadas em `supabase/migrations/`: extensões (`pg_trgm`, `pgcrypto`), enums, 17 tabelas
+  (as 16 da seção 18 + `app_settings`), FKs, `check` constraints, índices em todas as FKs, índice em
+  `guests(phone_normalized)` e índices trigram em `guests(full_name)` e `members(full_name)`.
+- Índice único parcial de presença ativa e índice de evento ativo único.
+- Funções `security definer` de escopo: `is_polo_admin()`, `has_church_access()`, `has_group_access()`,
+  `has_record_access()`, `can_check_in()`, `can_grant_role()`, `can_manage_user()` e outras.
+- RLS habilitado em todas as tabelas; escrita por coluna restrita (crédito de convidado só muda por RPC).
+- Gatilhos: perfil criado ao entrar no Auth; igreja do membro vem do grupo; histórico de transferência;
+  proteção contra excluir igreja e contra remover o último Admin; auditoria em `audit_logs`.
+- Seed de produção com as 11 igrejas (migration idempotente). Bucket `logos` (público, 2 MB, PNG/SVG/JPG).
+- Edge Function `convidar-usuario` (convite por e-mail; service_role apenas no servidor).
+- Frontend: login, recuperação e redefinição de senha, aceite de convite, sair / sair de todos os
+  dispositivos, rotas protegidas por perfil, tela "Usuários e permissões".
+- Script `npm run admin:criar -- email` para cadastrar o primeiro Administrador do Polo.
+- Testes de banco locais com PGlite (31 cenários de RLS e integridade) e script `npm run test:rls`
+  para testar RLS pela API no banco real.
+
+### Pendente nesta fase
+- Aplicar migrations no projeto DEV, publicar a Edge Function e rodar `npm run test:rls`
+  (aguardando acesso ao projeto `zaawhfbmuogfyigxscta` no Supabase CLI).
+
 ## [Fase 1] — 2026-11-21 — Estrutura do projeto e CI
 
 ### Adicionado

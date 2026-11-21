@@ -15,9 +15,12 @@ describe('normalizePhone', () => {
     expect(normalizePhone(input)).toBe(expected)
   })
 
-  it.each(['', '123', 'abc', '(83) 88765-4321', '(01) 98765-4321', '839876543210000'])('rejeita "%s"', (input) => {
-    expect(normalizePhone(input)).toBeNull()
-  })
+  it.each(['', '123', 'abc', '(83) 88765-4321', '(01) 98765-4321', '839876543210000'])(
+    'rejeita "%s"',
+    (input) => {
+      expect(normalizePhone(input)).toBeNull()
+    },
+  )
 })
 
 describe('formatação', () => {

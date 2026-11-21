@@ -7,6 +7,7 @@ import './index.css'
 import { App } from './App'
 import { env } from './lib/env'
 import { ConfigErrorPage } from './pages/StatusPages'
+import { AuthProvider } from './features/auth/AuthProvider'
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 15_000, retry: 1, refetchOnWindowFocus: false } },
@@ -17,7 +18,9 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       {env.ok ? (
         <QueryClientProvider client={queryClient}>
-          <App />
+          <AuthProvider>
+            <App />
+          </AuthProvider>
           <Toaster richColors position="top-center" />
         </QueryClientProvider>
       ) : (

@@ -58,7 +58,13 @@ export function AppShell({ roles, headerRight, eventSelector, eventName, logoUrl
             <aside className="absolute inset-y-0 left-0 w-72 max-w-[85vw] overflow-y-auto bg-navy">
               <div className="flex items-center justify-between border-b border-white/10 p-4">
                 <Brand eventName={eventName} logoUrl={logoUrl} light />
-                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10" onClick={() => setOpen(false)} aria-label="Fechar menu">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-white/10"
+                  onClick={() => setOpen(false)}
+                  aria-label="Fechar menu"
+                >
                   <X />
                 </Button>
               </div>
@@ -69,7 +75,13 @@ export function AppShell({ roles, headerRight, eventSelector, eventName, logoUrl
 
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="no-print sticky top-0 z-30 flex items-center gap-3 border-b bg-card px-4 py-2">
-            <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(true)} aria-label="Abrir menu">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setOpen(true)}
+              aria-label="Abrir menu"
+            >
               <Menu />
             </Button>
             <div className="lg:hidden">

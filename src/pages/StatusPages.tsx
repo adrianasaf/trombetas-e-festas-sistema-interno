@@ -17,7 +17,13 @@ function StatusLayout({ code, title, text }: { code: string; title: string; text
 }
 
 export function NotFoundPage() {
-  return <StatusLayout code="404" title="Página não encontrada" text="O endereço acessado não existe ou foi removido." />
+  return (
+    <StatusLayout
+      code="404"
+      title="Página não encontrada"
+      text="O endereço acessado não existe ou foi removido."
+    />
+  )
 }
 
 export function ForbiddenPage() {
@@ -36,8 +42,8 @@ export function ConfigErrorPage({ missing }: { missing: string[] }) {
       <Brand />
       <h1 className="text-2xl font-bold">Configuração incompleta</h1>
       <p className="max-w-md text-muted-foreground">
-        O sistema não encontrou as variáveis de ambiente obrigatórias. Configure-as no arquivo <code>.env.local</code>{' '}
-        (desenvolvimento) ou no painel da Vercel (publicação):
+        O sistema não encontrou as variáveis de ambiente obrigatórias. Configure-as no arquivo{' '}
+        <code>.env.local</code> (desenvolvimento) ou no painel da Vercel (publicação):
       </p>
       <ul className="font-mono text-sm">
         {missing.map((m) => (

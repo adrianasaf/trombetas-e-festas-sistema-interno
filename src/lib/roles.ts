@@ -27,7 +27,11 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { to: '/convidados', label: 'Convidados', roles: ['polo_admin', 'church_manager', 'group_leader'] },
   { to: '/check-in', label: 'Check-in', roles: ['polo_admin', 'church_manager', 'reception'] },
   { to: '/transporte', label: 'Transporte', roles: ['polo_admin', 'church_manager', 'group_leader'] },
-  { to: '/relatorios', label: 'Relatórios', roles: ['polo_admin', 'church_manager', 'group_leader', 'reader'] },
+  {
+    to: '/relatorios',
+    label: 'Relatórios',
+    roles: ['polo_admin', 'church_manager', 'group_leader', 'reader'],
+  },
   { to: '/duplicidades', label: 'Duplicidades', roles: ['polo_admin', 'church_manager'] },
   { to: '/usuarios', label: 'Usuários e permissões', roles: ['polo_admin', 'church_manager'] },
   { to: '/configuracoes', label: 'Configurações', roles: ['polo_admin'] },

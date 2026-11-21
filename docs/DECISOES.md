@@ -24,3 +24,42 @@ Decisões tomadas onde a especificação era omissa ou ambígua. Formato: contex
 
 ### D-005 — Nomes de perfis no código
 - **Decisão:** `polo_admin`, `church_manager`, `group_leader`, `reception`, `reader` (enum `app_role` no banco), com rótulos em português na interface.
+
+### D-006 — Vercel conectada pelo usuário
+- **Decisão:** a Vercel foi ligada ao repositório pelo painel, com as variáveis já configuradas. Não criar outro projeto nem rodar `vercel link`.
+
+## Fase 2
+
+### D-007 — Testes de banco sem Docker (PGlite)
+- **Contexto:** Docker não está disponível na máquina, então `supabase start` não roda.
+- **Decisão:** as migrations são aplicadas num Postgres real em WebAssembly (PGlite, Postgres 18) com um esboço mínimo dos esquemas `auth`, `storage` e `realtime`. Os testes rodam em `npm test` e no CI. Isso **não substitui** o teste no banco real, feito por `npm run test:rls` pela API pública.
+
+### D-008 — Crédito do convidado desnormalizado em `guests`
+- **Decisão:** `guests.church_id/group_id/member_id` guardam o crédito do primeiro cadastro, copiado do snapshot em `guest_referrals`. O cliente não pode alterar essas colunas (permissão por coluna); só RPCs auditadas.
+- **Motivo:** políticas RLS simples e rápidas, sem `join` a cada linha.
+
+### D-009 — Quem concede perfis
+- **Decisão:** o Admin concede qualquer perfil. O Gestor de Igreja concede Gestor, Responsável de Grupo e Leitor **da própria igreja**; **não** concede Admin nem Recepção, porque a Recepção tem escopo em todas as igrejas.
+- **Motivo:** menor privilégio; evita que um gestor amplie o próprio alcance.
+
+### D-010 — Check-in também pelo Gestor de Igreja
+- **Decisão:** Admin, Recepção e Gestor de Igreja operam o check-in. Na busca, o telefone aparece mascarado para todos.
+
+### D-011 — Recepção e Leitor sem `select` direto em convidados
+- **Decisão:** esses perfis não têm política de leitura em `guests`. A Recepção usa RPCs de check-in que já devolvem o telefone mascarado; o Leitor usa RPCs de números agregados.
+- **Motivo:** a RLS é por linha e não mascara colunas; negar a tabela inteira é a forma segura.
+
+### D-012 — Escritas sensíveis só por RPC
+- **Decisão:** `attendances`, `guest_referrals`, `guest_consents`, `duplicate_reviews`, `goal_snapshots`, `member_group_history` e a inserção em `guests` não têm política de escrita para `authenticated`. São gravadas por funções `security definer` que validam o escopo.
+
+### D-013 — Primeiro administrador
+- **Decisão:** `public.bootstrap_polo_admin(email)` só pode ser executada pelo dono do banco (SQL Editor ou Supabase CLI), nunca pela API. O usuário é criado antes no painel do Auth. Assim nenhuma chave secreta passa pelo repositório.
+
+### D-014 — Marcador de ambiente DEV
+- **Decisão:** `app_settings.environment = 'dev'` é gravado apenas no projeto DEV (`npm run db:marcar-dev`, que confere o project ref). O seed de demonstração e o preparo dos testes de RLS abortam sem esse marcador, protegendo a produção.
+
+### D-015 — Senha
+- **Decisão:** mínimo de 8 caracteres com letras e números (validado no frontend e em `supabase/config.toml`).
+
+### D-016 — Igreja nunca é excluída
+- **Decisão:** não há política de delete em `churches`, e um gatilho impede a exclusão física mesmo pelo dono do banco.

@@ -8,11 +8,13 @@ export function HomePage() {
       <Card>
         <CardHeader>
           <CardTitle>Estrutura inicial publicada</CardTitle>
-          <CardDescription>Fase 1 de 10 — estrutura do projeto e integração contínua.</CardDescription>
+          <CardDescription>
+            Fases 1 e 2 de 10 — estrutura, banco de dados, permissões e acesso.
+          </CardDescription>
         </CardHeader>
         <CardContent className="text-base">
-          Login, cadastros, check-in e dashboards serão liberados nas próximas fases. Nenhum dado é exibido nesta
-          versão.
+          Login, cadastros, check-in e dashboards serão liberados nas próximas fases. Nenhum dado é exibido
+          nesta versão.
         </CardContent>
       </Card>
     </div>
