@@ -104,5 +104,20 @@ Decisões tomadas onde a especificação era omissa ou ambígua. Formato: contex
 ### D-027 — Exclusão de convidado
 - **Decisão:** Admin, Gestor da igreja e Responsável do grupo podem excluir enquanto a edição estiver aberta, mas o banco impede excluir quem tem presença registrada (o histórico de presença nunca é apagado).
 
+## Fase 5
+
+### D-028 — Snapshot automático com pg_cron
+- **Decisão:** um job `pg_cron` (`tef-snapshot-metas`, a cada minuto) grava o snapshot das edições cuja data de corte passou. Também é gravado ao salvar uma data de corte vencida, ao encerrar a edição e pelo botão do Admin. A situação dos membros é a do momento da gravação (até 1 minuto depois do corte).
+- **Motivo:** o Postgres não guarda o histórico de "ativo/inativo"; gravar logo após o corte é o mais fiel possível.
+
+### D-029 — "Membros abaixo da meta" considera só a base da meta
+- **Decisão:** os indicadores "cumpriram/abaixo" contam apenas membros que fazem parte da meta (ativos ao vivo antes do corte, ou do snapshot depois). Membros novos após o corte (meta zero) não aparecem como "abaixo".
+
+### D-030 — Alcance e online
+- **Decisão:** `reach_total` = convidados com presença presencial + convidados só online. Quem tem as duas conta uma vez, como presencial. "Online confirmados" = situação "confirmou" com modalidade online; "online registrados" = presença online ativa (autodeclarada).
+
+### D-031 — Grupo do snapshot
+- **Decisão:** depois do corte, a meta de cada membro fica no grupo/igreja em que ele estava no snapshot, mesmo se for transferido. Os convites seguem o snapshot de `guest_referrals`.
+
 ### D-016 — Igreja nunca é excluída
 - **Decisão:** não há política de delete em `churches`, e um gatilho impede a exclusão física mesmo pelo dono do banco.

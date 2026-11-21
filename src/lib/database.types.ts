@@ -1077,6 +1077,82 @@ export type Database = {
         Returns: Json
       }
       find_user_id_by_email: { Args: { p_email: string }; Returns: string }
+      goal_by_church: {
+        Args: { p_event_id?: string }
+        Returns: {
+          attendance_goal: number
+          church_id: string
+          church_name: string
+          confirmed: number
+          guests_unique: number
+          invites_goal: number
+          members_below_attendance: number
+          members_below_invites: number
+          members_goal_base: number
+          members_met_attendance: number
+          members_met_invites: number
+          need_transport: number
+          online_confirmed: number
+          online_only: number
+          online_registered: number
+          pct_attendance: number
+          pct_invites: number
+          present_unique: number
+          reach_total: number
+          walk_ins: number
+        }[]
+      }
+      goal_by_group: {
+        Args: { p_church_id?: string; p_event_id?: string }
+        Returns: {
+          attendance_goal: number
+          church_id: string
+          church_name: string
+          confirmed: number
+          group_active: boolean
+          group_id: string
+          group_name: string
+          guests_unique: number
+          invites_goal: number
+          members_below_attendance: number
+          members_below_invites: number
+          members_goal_base: number
+          members_met_attendance: number
+          members_met_invites: number
+          need_transport: number
+          online_confirmed: number
+          online_only: number
+          online_registered: number
+          pct_attendance: number
+          pct_invites: number
+          present_unique: number
+          reach_total: number
+          walk_ins: number
+        }[]
+      }
+      goal_summary: {
+        Args: { p_church_id?: string; p_event_id?: string; p_group_id?: string }
+        Returns: {
+          attendance_goal: number
+          confirmed: number
+          guests_unique: number
+          invites_goal: number
+          members_below_attendance: number
+          members_below_invites: number
+          members_goal_base: number
+          members_met_attendance: number
+          members_met_invites: number
+          need_transport: number
+          online_confirmed: number
+          online_only: number
+          online_registered: number
+          pct_attendance: number
+          pct_invites: number
+          present_unique: number
+          reach_total: number
+          walk_ins: number
+        }[]
+      }
       group_overview: {
         Args: { p_church_id?: string }
         Returns: {
@@ -1134,6 +1210,25 @@ export type Database = {
           last_sign_in_at: string
         }[]
       }
+      member_goal_stats: {
+        Args: { p_event_id?: string; p_group_id?: string; p_member_id?: string }
+        Returns: {
+          attendance_goal: number
+          church_id: string
+          full_name: string
+          group_id: string
+          group_name: string
+          in_goal: boolean
+          invited: number
+          invites_goal: number
+          member_active: boolean
+          member_id: string
+          met_attendance: boolean
+          met_invites: boolean
+          online: number
+          present: number
+        }[]
+      }
       merge_guests: {
         Args: { p_keep_guest_id: string; p_note?: string; p_review_id: string }
         Returns: Json
@@ -1155,6 +1250,10 @@ export type Database = {
       resolve_duplicate_distinct: {
         Args: { p_note?: string; p_review_id: string }
         Returns: undefined
+      }
+      take_goal_snapshot_now: {
+        Args: { p_event_id: string; p_replace?: boolean }
+        Returns: number
       }
       write_audit: {
         Args: {

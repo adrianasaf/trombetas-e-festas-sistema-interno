@@ -43,6 +43,17 @@ Só aparece como **aprovado** o que foi de fato executado. Itens da seção 19 a
 | Frontend | validação do formulário (adulto, criança, consentimento, 500 caracteres) e rótulos | ✅ |
 | Banco real via API (DEV) | `npm run test:rls`: cadastro com snapshot e consentimento; recusa sem consentimento; criança com responsável; Gestor A bloqueado para membro da igreja B; Recepção/Leitor bloqueados; duplicidade por telefone → revisão; fila invisível ao Responsável; Responsável não mescla; Gestor mescla com crédito do primeiro cadastro; dados de teste removidos ao final | ✅ 32/32 (acumulado) |
 
+## Fase 5 — 2026-11-21
+
+| Verificação | Como | Resultado |
+|---|---|---|
+| Fórmulas 20/30/50 | `supabase/tests/fase5-metas.test.ts`: 20 → 60/20; 30 → 90/30; 50 → 150/50 | ✅ |
+| Percentuais e indicadores | 15 convidados/5 presentes sobre 150/50 → 10%/10%; membros que cumpriram (5) e abaixo (45); online separado do presencial; presencial+online conta uma vez no alcance; presença revogada não conta; transporte e confirmados | ✅ |
+| Data de corte | antes do corte a meta é ao vivo; corte salvo no passado grava snapshot (50 membros); inativado depois do corte continua na meta; novo depois do corte tem meta zero e seus convites contam; transferência depois do corte mantém a meta no grupo do snapshot; só o Admin grava/refaz | ✅ 19/19 |
+| Escopo | Leitor A vê só a igreja A; Gestor não vê o Polo; Leitor do Polo e Recepção veem; Leitor sem desempenho por membro; Responsável vê o próprio grupo | ✅ |
+| pg_cron no banco real | edição de teste com corte vencido inserida sem o gatilho: snapshot gravado pelo job às 14:15 (2 membros), "succeeded"; edição removida em seguida | ✅ |
+| Banco real via API | Leitor A (igreja A sim, Polo/igreja B não); fórmula da igreja A = ativos × 3 / × 1; Leitor do Polo vê o Polo e não vê membros; Responsável só o próprio grupo; Gestor não grava snapshot | ✅ 37/37 (acumulado) |
+
 ## Situação da seção 19 da especificação
 
 | # | Teste | Situação |
@@ -52,7 +63,7 @@ Só aparece como **aprovado** o que foi de fato executado. Itens da seção 19 a
 | 3 | CRUD de grupos e membros, transferência | ✅ local e via API no banco real; telas logadas não verificadas no navegador (ver D-020) |
 | 4 | Cadastro de convidados, criança com responsável | ✅ local e via API no banco real |
 | 5 | Duplicidade, mescla, crédito do primeiro cadastro | ✅ local e via API no banco real |
-| 6 | Metas 20/30/50 e data de corte | pendente (Fase 5) |
+| 6 | Metas 20/30/50 e data de corte | ✅ local; fórmula e escopo também via API no banco real; snapshot automático confirmado no DEV |
 | 7 | Check-in, duplicada, corrida concorrente | pendente (Fase 6) |
 | 8 | Desmarcação com histórico; Recepção impedida | pendente (Fase 6) |
 | 9 | Online separado do presencial | pendente (Fase 6) |

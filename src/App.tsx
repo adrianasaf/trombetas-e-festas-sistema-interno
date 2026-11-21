@@ -16,6 +16,8 @@ import { GuestsPage } from '@/features/guests/GuestsPage'
 import { GuestDetailPage } from '@/features/guests/GuestDetailPage'
 import { MemberGuestsSection } from '@/features/guests/QuickGuestRows'
 import { DuplicatesPage } from '@/features/duplicates/DuplicatesPage'
+import { SettingsPage } from '@/features/settings/SettingsPage'
+import { MemberGoalCard } from '@/features/goals/MemberGoalCard'
 import { NAV_ITEMS } from '@/lib/roles'
 import { HomePage } from '@/pages/HomePage'
 import { PrivacyPage } from '@/pages/PrivacyPage'
@@ -46,6 +48,7 @@ export function App() {
           element={guarded(
             '/membros',
             <MemberDetailPage
+              goalSlot={(memberId) => <MemberGoalCard memberId={memberId} />}
               guestsSlot={(memberId, active) => (
                 <MemberGuestsSection memberId={memberId} memberActive={active} />
               )}
@@ -55,6 +58,7 @@ export function App() {
         <Route path="convidados" element={guarded('/convidados', <GuestsPage />)} />
         <Route path="convidados/:id" element={guarded('/convidados', <GuestDetailPage />)} />
         <Route path="duplicidades" element={guarded('/duplicidades', <DuplicatesPage />)} />
+        <Route path="configuracoes" element={guarded('/configuracoes', <SettingsPage />)} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

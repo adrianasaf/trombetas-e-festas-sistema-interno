@@ -461,6 +461,49 @@ for (const id of [...created].reverse()) {
   await admin.from('guests').delete().eq('id', id)
 }
 
+// ---- Fase 5: motor de metas ----
+await check('Fase 5: Leitor A vê metas da igreja A, mas não do Polo nem da igreja B', async () => {
+  const { data: a } = await admin.from('churches').select('id').eq('name', 'ICM Manaíra').single()
+  const { data: b } = await admin.from('churches').select('id').eq('name', 'ICM Geisel').single()
+  const ra = await leitorA.rpc('goal_summary', { p_church_id: a.id })
+  const rb = await leitorA.rpc('goal_summary', { p_church_id: b.id })
+  const rp = await leitorA.rpc('goal_summary', {})
+  assert(!ra.error && ra.data.length === 1, ra.error?.message ?? 'sem dados da igreja A')
+  assert((rb.data ?? []).length === 0 && (rp.data ?? []).length === 0, 'viu igreja B ou Polo')
+})
+
+await check('Fase 5: meta da igreja A = membros ativos × 3 e × 1', async () => {
+  const { data: a } = await admin.from('churches').select('id').eq('name', 'ICM Manaíra').single()
+  const { count } = await admin
+    .from('members')
+    .select('id', { count: 'exact', head: true })
+    .eq('church_id', a.id)
+    .eq('active', true)
+  const { data } = await admin.rpc('goal_summary', { p_church_id: a.id })
+  const s = data[0]
+  assert(Number(s.members_goal_base) === count, `base ${s.members_goal_base} ≠ ${count}`)
+  assert(Number(s.invites_goal) === count * 3 && Number(s.attendance_goal) === count, 'fórmula incorreta')
+})
+
+await check('Fase 5: Leitor do Polo vê o Polo; não vê desempenho por membro', async () => {
+  const p = await leitorPolo.rpc('goal_summary', {})
+  const m = await leitorPolo.rpc('member_goal_stats', {})
+  assert(!p.error && p.data.length === 1, p.error?.message ?? 'sem Polo')
+  assert((m.data ?? []).length === 0, 'leitor viu membros')
+})
+
+await check('Fase 5: Responsável A1 vê desempenho só dos membros do próprio grupo', async () => {
+  const { data, error } = await respA1.rpc('member_goal_stats', {})
+  assert(!error, error?.message)
+  assert(data.length > 0 && data.every((r) => r.group_name === '[TESTE RLS] Grupo A1'), 'escopo incorreto')
+})
+
+await check('Fase 5: só o Admin grava snapshot manualmente', async () => {
+  const { data: ev } = await admin.from('events').select('id').eq('status', 'ativo').single()
+  const { error } = await gestorA.rpc('take_goal_snapshot_now', { p_event_id: ev.id })
+  assert(error && /Administrador/.test(error.message), error?.message ?? 'aceito')
+})
+
 // Fases seguintes acrescentam cenários aqui (check-in, máscara de telefone, etc.).
 const extra = path.join(root, 'scripts/testar-rls.extra.mjs')
 if (existsSync(extra)) {

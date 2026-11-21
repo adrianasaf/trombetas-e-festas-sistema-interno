@@ -2,6 +2,21 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Fase 5] — 2026-11-21 — Motor de metas e snapshots
+
+### Adicionado
+- Funções no banco: `goal_summary` (Polo, igreja ou grupo), `goal_by_church`, `goal_by_group` e
+  `member_goal_stats` — meta de convites, meta presencial, convidados únicos, presenças presenciais,
+  percentuais, confirmados, participações online (confirmadas, registradas e só online), alcance total,
+  transporte, cadastros na chegada e membros que cumpriram/estão abaixo de cada meta. Tudo calculado no
+  banco, no escopo de cada perfil; o Leitor vê só números agregados.
+- Data de corte: snapshot automático em `goal_snapshots` via pg_cron (a cada minuto), ao salvar uma data
+  de corte já vencida e ao encerrar a edição; botão do Admin para gravar ou refazer (auditado).
+- Tela Configurações: edições do evento (criar, editar, ativar, encerrar), metas por membro, data de
+  corte, snapshot, logomarca (Storage, PNG/SVG/JPG até 2 MB), som do check-in, prazo de retenção e
+  política de retenção.
+- Cartão de metas na ficha do membro (convidados/meta, presentes/meta, indicador de meta cumprida).
+
 ## [Fase 4] — 2026-11-21 — Convidados, consentimento e duplicidades
 
 ### Adicionado

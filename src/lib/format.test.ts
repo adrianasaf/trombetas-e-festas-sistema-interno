@@ -14,3 +14,12 @@ describe('formatação de datas no fuso America/Fortaleza', () => {
     expect(formatPercent(null)).toBe('—')
   })
 })
+
+describe('datetime-local no fuso do evento', async () => {
+  const { toLocalInput, fromLocalInput } = await import('./format')
+  it('converte ida e volta sem deslocar', () => {
+    expect(toLocalInput('2026-12-05T22:30:00.000Z')).toBe('2026-12-05T19:30')
+    expect(fromLocalInput('2026-12-05T19:30')).toBe('2026-12-05T22:30:00.000Z')
+    expect(fromLocalInput('')).toBeNull()
+  })
+})
