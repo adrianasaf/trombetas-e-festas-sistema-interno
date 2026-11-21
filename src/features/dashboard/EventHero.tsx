@@ -27,8 +27,15 @@ export function EventHero({ event }: { event: EventRow }) {
   else status = 'Contagem regressiva'
 
   return (
-    <section className="mb-8 rounded-lg bg-navy text-white">
-      <div className="flex flex-col gap-6 p-6 md:flex-row md:items-end md:justify-between md:p-8">
+    <section className="relative mb-8 overflow-hidden rounded-lg bg-navy text-white">
+      <img
+        src="/brand/trombetas-2026.png"
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 right-0 hidden h-full w-1/2 object-contain object-right md:block"
+        style={{ maskImage: 'linear-gradient(90deg, transparent, #000 35%)' }}
+      />
+      <div className="relative flex flex-col gap-6 p-6 md:max-w-[58%] md:p-8">
         <div>
           <p className="text-[0.7rem] font-semibold tracking-[0.28em] text-gold-bright uppercase">{status}</p>
           <h2 className="mt-2 text-[2rem] text-white">{event.name}</h2>
