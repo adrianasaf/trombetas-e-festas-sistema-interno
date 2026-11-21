@@ -32,8 +32,11 @@ export function EventHero({ event }: { event: EventRow }) {
         src="/brand/trombetas-2026.png"
         alt=""
         aria-hidden
-        className="pointer-events-none absolute inset-y-0 right-0 hidden h-full w-1/2 object-contain object-right md:block"
-        style={{ maskImage: 'linear-gradient(90deg, transparent, #000 35%)' }}
+        className="pointer-events-none absolute inset-y-0 right-0 hidden h-full w-auto max-w-[62%] object-cover object-[2%_center] md:block"
+        style={{
+          maskImage: 'linear-gradient(90deg, transparent, #000 35%)',
+          WebkitMaskImage: 'linear-gradient(90deg, transparent, #000 35%)',
+        }}
       />
       <div className="relative flex flex-col gap-6 p-6 md:max-w-[58%] md:p-8">
         <div>
