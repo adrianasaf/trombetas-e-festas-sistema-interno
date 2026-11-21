@@ -53,6 +53,10 @@
   --border: #d6dbe5;
   --input: #c4cbd8;
   --ring: #c9971c;
+  /* Gráficos: paleta categórica validada (skill dataviz), slots 1 e 2 */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --grid: #e6e9ef;
 }
 
 @layer base {

@@ -18,7 +18,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/components/ui/**'],
+    files: ['src/components/ui/**', 'src/components/charts/**'],
     rules: { 'react-refresh/only-export-components': 'off' },
   },
 )

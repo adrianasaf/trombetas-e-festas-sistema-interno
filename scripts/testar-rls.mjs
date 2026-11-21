@@ -655,6 +655,35 @@ await check('Fase 5: só o Admin grava snapshot manualmente', async () => {
   if (cleanup.status !== 0) console.log('  (aviso) limpeza da Fase 6 falhou')
 }
 
+// ---- Fase 7: dashboards ----
+await check(
+  'Fase 7: painéis agregados respeitam o escopo (Leitor A: igreja A sim, Polo/igreja B não)',
+  async () => {
+    const { data: a } = await admin.from('churches').select('id').eq('name', 'ICM Manaíra').single()
+    const { data: b } = await admin.from('churches').select('id').eq('name', 'ICM Geisel').single()
+    for (const fn of ['stats_daily', 'stats_categories', 'stats_transport']) {
+      const polo = await leitorA.rpc(fn, {})
+      const other = await leitorA.rpc(fn, { p_church_id: b.id })
+      const own = await leitorA.rpc(fn, { p_church_id: a.id })
+      assert(!own.error, `${fn}: ${own.error?.message}`)
+      assert((polo.data ?? []).length === 0 && (other.data ?? []).length === 0, `${fn} vazou fora do escopo`)
+    }
+  },
+)
+
+await check('Fase 7: Admin vê ranking das 11 igrejas e grupos', async () => {
+  const c = await admin.rpc('goal_by_church', {})
+  const g = await admin.rpc('goal_by_group', {})
+  assert(c.data?.length === 11 && g.data?.length >= 3, `igrejas ${c.data?.length}, grupos ${g.data?.length}`)
+})
+
+await check('Fase 7: anônimo não executa nenhuma RPC de painel', async () => {
+  for (const fn of ['goal_summary', 'goal_by_church', 'stats_daily', 'stats_categories', 'stats_transport']) {
+    const r = await anon.rpc(fn, {})
+    assert(r.error, `${fn} executou como anônimo`)
+  }
+})
+
 // Fases seguintes acrescentam cenários aqui (check-in, máscara de telefone, etc.).
 const extra = path.join(root, 'scripts/testar-rls.extra.mjs')
 if (existsSync(extra)) {

@@ -21,7 +21,8 @@ import { MemberGoalCard } from '@/features/goals/MemberGoalCard'
 import { CheckInPage } from '@/features/checkin/CheckInPage'
 import { AttendanceCard } from '@/features/checkin/AttendanceCard'
 import { NAV_ITEMS } from '@/lib/roles'
-import { HomePage } from '@/pages/HomePage'
+import { DashboardPage } from '@/features/dashboard/DashboardPage'
+import { ChurchPanel, GroupPanel } from '@/features/dashboard/Panels'
 import { PrivacyPage } from '@/pages/PrivacyPage'
 import { NotFoundPage } from '@/pages/StatusPages'
 
@@ -38,12 +39,24 @@ export function App() {
       <Route path="/definir-senha" element={<SetPasswordPage />} />
       <Route path="/privacidade" element={<PrivacyPage />} />
       <Route element={<ProtectedLayout />}>
-        <Route index element={<HomePage />} />
+        <Route index element={<DashboardPage />} />
         <Route path="usuarios" element={guarded('/usuarios', <UsersPage />)} />
         <Route path="igrejas" element={guarded('/igrejas', <ChurchesPage />)} />
-        <Route path="igrejas/:id" element={guarded('/igrejas', <ChurchDetailPage />)} />
+        <Route
+          path="igrejas/:id"
+          element={guarded(
+            '/igrejas',
+            <ChurchDetailPage statsSlot={(id) => <ChurchPanel churchId={id} />} />,
+          )}
+        />
         <Route path="grupos" element={guarded('/grupos', <GroupsPage />)} />
-        <Route path="grupos/:id" element={guarded('/grupos', <GroupDetailPage />)} />
+        <Route
+          path="grupos/:id"
+          element={guarded(
+            '/grupos',
+            <GroupDetailPage performanceSlot={(id) => <GroupPanel groupId={id} />} />,
+          )}
+        />
         <Route path="membros" element={guarded('/membros', <MembersPage />)} />
         <Route
           path="membros/:id"

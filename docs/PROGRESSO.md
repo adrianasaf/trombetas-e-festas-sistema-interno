@@ -8,7 +8,7 @@ Ao retomar uma sessão, continue da primeira fase não marcada. Detalhes de cada
 - [x] **Fase 4** — Convidados, consentimento e duplicidades
 - [x] **Fase 5** — Motor de metas e snapshots
 - [x] **Fase 6** — Check-in, walk-in, fila de retentativa e tempo real
-- [ ] **Fase 7** — Dashboards
+- [x] **Fase 7** — Dashboards
 - [ ] **Fase 8** — Transporte e relatórios
 - [ ] **Fase 9** — LGPD (anonimização, auditoria), revisão de segurança e bateria completa de testes
 - [ ] **Fase 10** — Preparação para implantação (Vercel + Supabase prod + SMTP + domínio)

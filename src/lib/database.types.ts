@@ -1305,6 +1305,30 @@ export type Database = {
           member_id: string
         }[]
       }
+      stats_categories: {
+        Args: { p_church_id?: string; p_event_id?: string; p_group_id?: string }
+        Returns: {
+          category: Database["public"]["Enums"]["guest_category"]
+          guests: number
+          online: number
+          present: number
+        }[]
+      }
+      stats_daily: {
+        Args: { p_church_id?: string; p_event_id?: string; p_group_id?: string }
+        Returns: {
+          attendances: number
+          day: string
+          invites: number
+        }[]
+      }
+      stats_transport: {
+        Args: { p_church_id?: string; p_event_id?: string; p_group_id?: string }
+        Returns: {
+          status: Database["public"]["Enums"]["transport_status"]
+          total: number
+        }[]
+      }
       take_goal_snapshot_now: {
         Args: { p_event_id: string; p_replace?: boolean }
         Returns: number

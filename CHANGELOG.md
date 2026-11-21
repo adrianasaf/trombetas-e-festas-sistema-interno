@@ -2,6 +2,26 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Fase 7] — 2026-11-21 — Dashboards
+
+### Adicionado
+- RPCs agregadas `stats_daily` (por dia no fuso de Fortaleza), `stats_categories` e `stats_transport`,
+  no escopo de cada perfil.
+- Dashboard geral do Polo: cartões da seção 13 (igrejas, grupos, membros na meta, metas, convidados,
+  percentuais, presenças, confirmados, online, transporte, membros que cumpriram/abaixo), convites e
+  presença por igreja, ranking das igrejas e dos grupos por % da meta **sempre com os absolutos**
+  ("82% — 246/300"), evolução diária, categorias, presencial × online e situação do transporte.
+- Painel da igreja (na tela da igreja) com lista de grupos clicável; painel do grupo (na tela do grupo)
+  com tabela de desempenho por membro (convidados/meta, presentes/meta, situação com cor + texto).
+- Página inicial escolhe o painel pelo perfil: Polo (Admin, Recepção, Leitor do Polo), igreja (Gestor,
+  Leitor da igreja, com seletor se houver mais de uma) ou grupo (Responsável).
+- Gráficos próprios em SVG/HTML, sem biblioteca: barras com tooltip, linha com cruz e tooltip ao
+  passar o mouse/dedo, legenda, botão "Ver tabela" em cada gráfico; paleta validada pelo script da
+  skill de visualização (2 séries, todas as checagens aprovadas).
+
+### Removido
+- Página inicial provisória (substituída pelo dashboard).
+
 ## [Fase 6] — 2026-11-21 — Check-in, walk-in, fila de retentativa e tempo real
 
 ### Adicionado

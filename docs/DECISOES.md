@@ -137,5 +137,19 @@ Decisões tomadas onde a especificação era omissa ou ambígua. Formato: contex
 ### D-036 — Modo offline completo
 - **Pendência documentada (conforme a especificação):** a busca precisa de internet. Só o toque de "compareceu" e o cadastro na chegada ficam guardados quando a conexão cai.
 
+## Fase 7
+
+### D-037 — Gráficos sem biblioteca
+- **Decisão:** barras, barra dividida e linha foram escritas em SVG/HTML (~300 linhas), com tooltip, legenda e alternativa em tabela. Evita +100 kB de biblioteca no celular da recepção.
+
+### D-038 — Paleta dos gráficos
+- **Decisão:** série 1 `#2a78d6` (azul) e série 2 `#eb6834` (laranja), slots 1–2 da paleta de referência, validados com `validate_palette.js` (CVD ΔE 24,7; visão normal 33,6; contraste ≥ 3:1). Barras de série única usam a série 1. Textos e números usam as cores de texto, nunca a da série. Azul-marinho e dourado ficam para a identidade (cartões e cabeçalho), não para dados.
+
+### D-039 — Ranking por % de convites
+- **Decisão:** os rankings ordenam pela % da meta de convites e mostram a presença no tooltip e na tabela. Grupos sem membros na meta ficam fora do ranking (a % seria indefinida), mas aparecem na tabela da igreja.
+
+### D-040 — Painel por perfil
+- **Decisão:** quem tem escopo do Polo vê o Polo; quem tem igreja vê a igreja (com seletor); o Responsável vê o painel de cada grupo seu. O banco aplica o mesmo escopo em todas as RPCs.
+
 ### D-016 — Igreja nunca é excluída
 - **Decisão:** não há política de delete em `churches`, e um gatilho impede a exclusão física mesmo pelo dono do banco.

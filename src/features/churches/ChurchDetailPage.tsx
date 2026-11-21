@@ -12,7 +12,7 @@ import { numberFmt } from '@/lib/format'
 import { NotFoundPage } from '@/pages/StatusPages'
 import { useChurchOverview } from './churchQueries'
 
-export function ChurchDetailPage() {
+export function ChurchDetailPage({ statsSlot }: { statsSlot?: (churchId: string) => React.ReactNode }) {
   const { id = '' } = useParams()
   const scope = useScope()
   const overview = useChurchOverview()
@@ -54,9 +54,7 @@ export function ChurchDetailPage() {
         <Stat label="Membros ativos" value={church.members_active} />
         <Stat label="Membros (total)" value={church.members_total} />
       </div>
-      <p className="text-sm text-muted-foreground">
-        Metas, convidados e presenças desta igreja aparecem no painel da igreja (Dashboard).
-      </p>
+      {statsSlot?.(church.id)}
       <section className="space-y-3">
         <h2 className="text-xl font-bold">Grupos de assistência</h2>
         <GroupList churchId={church.id} />

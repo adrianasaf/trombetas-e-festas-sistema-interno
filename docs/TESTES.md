@@ -66,6 +66,16 @@ Só aparece como **aprovado** o que foi de fato executado. Itens da seção 19 a
 | Acumulado `npm run test:rls` | — | ✅ 46/46 (3 execuções seguidas) |
 | Interface do check-in no navegador | — | ⏳ não verificada logada (ver D-020); fluxo coberto pelas RPCs. Playwright na Fase 9 |
 
+## Fase 7 — 2026-11-21
+
+| Verificação | Como | Resultado |
+|---|---|---|
+| Banco local (PGlite) | `fase7-dashboards.test.ts`: evolução diária agrupada pelo dia de Fortaleza (cadastro às 23h30 do dia anterior fica no dia anterior); escopo do Leitor; categorias com presentes; transporte por igreja; Gestor A não vê transporte da igreja B | ✅ 5/5 |
+| Frontend | dias curtos e preenchimento de dias sem movimento; conversão numérica preserva nomes | ✅ |
+| Paleta | `validate_palette.js "#2a78d6,#eb6834" --mode light` | ✅ todas as checagens |
+| Banco real via API | RPCs de painel respeitam o escopo (Leitor A); Admin vê 11 igrejas e os grupos; anônimo não executa nenhuma | ✅ 49/49 (acumulado) |
+| Layout 360 px / tablet / desktop | — | ⏳ telas logadas serão capturadas pelo Playwright na Fase 9 |
+
 ## Situação da seção 19 da especificação
 
 | # | Teste | Situação |
