@@ -2,6 +2,13 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Produção] — 2026-11-22 — Excluir convidado com presença
+
+### Adicionado
+- Função `delete_guest`: convidado com presença registrada pode ser excluído pelo Gestor da igreja ou pelo
+  Admin, com motivo obrigatório (auditado); a presença é apagada junto. Sem presença, a regra anterior continua
+  (Admin, Gestor ou Responsável do grupo). Migration revisada e aprovada pelo usuário antes de aplicar.
+
 ## [Produção] — 2026-11-22 — Virada para produção
 
 ### Alterado

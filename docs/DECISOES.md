@@ -194,5 +194,9 @@ Decisões tomadas onde a especificação era omissa ou ambígua. Formato: contex
 ### D-051 — Verificação pós-virada
 - **Decisão:** sem a senha do Admin real (e com o admin de teste removido), a verificação "como admin" foi feita no banco simulando a sessão do PostgREST (papel `authenticated` + id do Admin), sob as mesmas políticas RLS, em transação desfeita ao final.
 
+### D-052 — Exclusão de convidado com presença
+- **Contexto:** a especificação mandava nunca apagar presenças; o usuário pediu poder excluir convidados mesmo com presença, para corrigir erros.
+- **Decisão:** permitido apenas ao Gestor da igreja e ao Admin (os mesmos que desmarcam presença), com motivo obrigatório registrado em `audit_logs` (`guests.excluir`, com o número de presenças apagadas). Registros mesclados no convidado saem junto.
+
 ### D-016 — Igreja nunca é excluída
 - **Decisão:** não há política de delete em `churches`, e um gatilho impede a exclusão física mesmo pelo dono do banco.

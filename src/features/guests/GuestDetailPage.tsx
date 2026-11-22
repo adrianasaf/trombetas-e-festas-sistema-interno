@@ -84,22 +84,16 @@ export function GuestDetailPage({ attendanceSlot }: { attendanceSlot?: (guest: G
   const [reassigning, setReassigning] = useState(false)
 
   const remove = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.from('guests').delete().eq('id', id).select('id')
+    mutationFn: async (reason: string | null) => {
+      const { error } = await supabase.rpc('delete_guest', { p_guest_id: id, p_reason: reason })
       if (error) throw error
-      if (!data?.length) throw new Error('Você não tem permissão para excluir este convidado.')
     },
     onSuccess: () => {
       toast.success('Convidado excluído.')
       invalidateGuestQueries(qc)
       navigate('/convidados', { replace: true })
     },
-    onError: (e) => {
-      const msg = translateError(e)
-      toast.error(
-        msg.includes('vinculado') ? 'Este convidado tem presença registrada e não pode ser excluído.' : msg,
-      )
-    },
+    onError: (e) => toast.error(translateError(e)),
   })
 
   if (guest.isLoading) return <Skeleton className="mx-auto h-64 max-w-4xl" />
@@ -142,9 +136,28 @@ export function GuestDetailPage({ attendanceSlot }: { attendanceSlot?: (guest: G
               <Button
                 variant="ghost"
                 className="text-destructive"
-                onClick={() => {
-                  if (window.confirm(`Excluir ${g.full_name}? Esta ação não pode ser desfeita.`))
-                    remove.mutate()
+                disabled={remove.isPending}
+                onClick={async () => {
+                  // Com presença registrada, o banco exige motivo (fica na auditoria).
+                  const { count } = await supabase
+                    .from('attendances')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('guest_id', g.id)
+                  if (count) {
+                    const reason = window.prompt(
+                      `${g.full_name} tem presença registrada. A exclusão apaga também a presença e não pode ser desfeita.
+
+Informe o motivo:`,
+                    )
+                    if (reason === null) return
+                    if (reason.trim().length < 3) {
+                      toast.error('Informe o motivo da exclusão.')
+                      return
+                    }
+                    remove.mutate(reason.trim())
+                  } else if (window.confirm(`Excluir ${g.full_name}? Esta ação não pode ser desfeita.`)) {
+                    remove.mutate(null)
+                  }
                 }}
               >
                 Excluir
