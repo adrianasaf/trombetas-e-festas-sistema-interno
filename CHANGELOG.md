@@ -2,6 +2,13 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Produção] — 2026-11-22 — Reenviar convite
+
+### Adicionado
+- Botão "Reenviar convite" em Usuários e permissões (para quem ainda não entrou) e "Reenviar acesso" (para quem
+  já entrou: envia link de definir nova senha). Mesma regra de escopo da tela; feito pela Edge Function
+  `convidar-usuario` (ação `reenviar`), que foi republicada.
+
 ## [Produção] — 2026-11-22 — Excluir convidado com presença
 
 ### Adicionado

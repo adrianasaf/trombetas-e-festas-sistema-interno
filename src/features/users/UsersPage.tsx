@@ -102,6 +102,31 @@ export function UsersPage() {
     onError: (e) => toast.error(translateError(e)),
   })
 
+  const resendInvite = useMutation({
+    mutationFn: async (u: ManageableUser) => {
+      const { data, error } = await supabase.functions.invoke('convidar-usuario', {
+        body: { action: 'reenviar', email: u.email, redirect_to: window.location.origin },
+      })
+      if (error) {
+        let message = translateError(error)
+        try {
+          const ctx = (error as { context?: Response }).context
+          const body = ctx && typeof ctx.json === 'function' ? await ctx.json() : null
+          if (body?.error) message = body.error
+        } catch {
+          /* mantém a mensagem genérica */
+        }
+        throw new Error(message)
+      }
+      return (data as { message?: string })?.message ?? 'Convite reenviado.'
+    },
+    onSuccess: (message) => {
+      toast.success(message)
+      void qc.invalidateQueries({ queryKey: ['manageable-users'] })
+    },
+    onError: (e) => toast.error((e as Error).message),
+  })
+
   const toggleActive = useMutation({
     mutationFn: async (u: ManageableUser) => {
       const { error } = await supabase.from('profiles').update({ active: !u.active }).eq('id', u.id)
@@ -204,6 +229,21 @@ export function UsersPage() {
                   <Button variant="outline" size="sm" onClick={() => setAddFor(u)}>
                     Adicionar perfil
                   </Button>
+                  {!isMe && u.active && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={resendInvite.isPending}
+                      onClick={() => {
+                        const msg = u.last_sign_in_at
+                          ? `${u.email} já acessou o sistema. Enviar um link para definir nova senha?`
+                          : `Reenviar o convite para ${u.email}? O link anterior deixa de valer.`
+                        if (window.confirm(msg)) resendInvite.mutate(u)
+                      }}
+                    >
+                      {u.last_sign_in_at ? 'Reenviar acesso' : 'Reenviar convite'}
+                    </Button>
+                  )}
                   {isAdmin && !isMe && (
                     <Button
                       variant={u.active ? 'outline' : 'secondary'}
