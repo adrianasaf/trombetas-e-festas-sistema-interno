@@ -1,16 +1,20 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PageHeader } from '@/components/ui/page-header'
 import { Skeleton } from '@/components/ui/skeleton'
+import { translateError } from '@/lib/errors'
 import { formatDate, formatDateTime } from '@/lib/format'
 import { formatPhone } from '@/lib/phone'
+import { supabase } from '@/lib/supabase'
 import { NotFoundPage } from '@/pages/StatusPages'
 import { MemberDialog } from './MemberDialog'
 import { TransferDialog } from './TransferDialog'
-import { useMember, useMemberHistory } from './memberQueries'
+import { invalidateMemberQueries, useMember, useMemberHistory } from './memberQueries'
 
 /** Ficha do membro. Metas e convidados entram nas fases 4 e 5 (MemberGuestsSection / MemberGoalCard). */
 export function MemberDetailPage({
@@ -25,6 +29,28 @@ export function MemberDetailPage({
   const history = useMemberHistory(id)
   const [editing, setEditing] = useState(false)
   const [transferring, setTransferring] = useState(false)
+  const navigate = useNavigate()
+  const qc = useQueryClient()
+  const remove = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.from('members').delete().eq('id', id).select('id')
+      if (error) throw error
+      if (!data?.length) throw new Error('Você não tem permissão para excluir este membro.')
+    },
+    onSuccess: () => {
+      toast.success('Membro excluído.')
+      invalidateMemberQueries(qc)
+      navigate('/membros', { replace: true })
+    },
+    onError: (e) => {
+      const code = (e as { code?: string }).code
+      toast.error(
+        code === '23503'
+          ? 'Este membro já tem convidados cadastrados e não pode ser excluído. Exclua ou reatribua os convidados antes, ou apenas inative o membro.'
+          : translateError(e),
+      )
+    },
+  })
 
   if (member.isLoading) return <Skeleton className="mx-auto h-48 max-w-4xl" />
   if (!member.data) return <NotFoundPage />
@@ -58,6 +84,21 @@ export function MemberDetailPage({
                 Transferir
               </Button>
             )}
+            <Button
+              variant="ghost"
+              className="text-destructive"
+              disabled={remove.isPending}
+              onClick={() => {
+                if (
+                  window.confirm(
+                    `Excluir ${m.full_name}? Use apenas para corrigir um cadastro feito por engano. Esta ação não pode ser desfeita.`,
+                  )
+                )
+                  remove.mutate()
+              }}
+            >
+              Excluir
+            </Button>
           </>
         }
       />
