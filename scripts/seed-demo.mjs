@@ -9,6 +9,10 @@ import { readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
 import { runRemoteSql } from './lib/db-query.mjs'
 
+import { refuseProduction } from './lib/guard.mjs'
+
+refuseProduction('seed:demo')
+
 const DEV_REF = 'zaawhfbmuogfyigxscta'
 const root = path.resolve(import.meta.dirname, '..')
 const refFile = path.join(root, 'supabase/.temp/project-ref')

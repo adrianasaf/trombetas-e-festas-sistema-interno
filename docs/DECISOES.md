@@ -185,5 +185,14 @@ Decisões tomadas onde a especificação era omissa ou ambígua. Formato: contex
 ### D-049 — Arte oficial
 - **Decisão:** a arte `trombetas-e-festas-2026-qr-code.png` (da pasta do usuário) foi copiada para `public/brand/trombetas-2026.png` e é usada só como imagem (login e faixa do Dashboard), sem recriar a logo da Igreja.
 
+## Produção
+
+### D-050 — Virada preservando dados reais
+- **Contexto:** ao listar os dados antes de apagar, havia um Gestor real (ICM Manaíra), o "GRUPO A" com um membro e um convidado cadastrados por ele. O usuário decidiu manter todos os dados reais e remover só os de teste.
+- **Decisão:** a limpeza removeu apenas usuários `@teste.trombetas.dev`, grupos "Grupo Demo"/"[TESTE RLS]" e convidados não criados por usuários reais. O evento de demonstração foi convertido no evento real (em vez de apagado), para o convidado real continuar ligado a ele. Só os gatilhos de auditoria foram desligados durante a transação; as chaves estrangeiras continuaram ativas. Uma trava abortaria tudo se algum dado real dependesse de dado de demonstração (ela disparou na primeira tentativa, quando o convidado real apareceu, e nada foi apagado).
+
+### D-051 — Verificação pós-virada
+- **Decisão:** sem a senha do Admin real (e com o admin de teste removido), a verificação "como admin" foi feita no banco simulando a sessão do PostgREST (papel `authenticated` + id do Admin), sob as mesmas políticas RLS, em transação desfeita ao final.
+
 ### D-016 — Igreja nunca é excluída
 - **Decisão:** não há política de delete em `churches`, e um gatilho impede a exclusão física mesmo pelo dono do banco.

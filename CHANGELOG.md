@@ -2,6 +2,32 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Produção] — 2026-11-22 — Virada para produção
+
+### Alterado
+- Projeto `zaawhfbmuogfyigxscta` marcado como produção (`app_settings.environment = 'prod'`).
+- Dados de teste e de demonstração removidos numa única transação; dados reais preservados.
+- Evento real "Trombetas e Festas 2026" (28/11/2026, 17h, metas 3/1) no lugar do evento de demonstração.
+- Trava `scripts/lib/guard.mjs`: seed, testes de RLS/carga e marcação de DEV recusam o projeto de produção.
+
+| Tabela | Antes | Depois |
+|---|---|---|
+| auth.users | 8 | 2 |
+| role_assignments | 8 | 2 |
+| events | 1 | 1 (convertido no evento real) |
+| churches | 11 | 11 |
+| assistance_groups | 48 | 1 |
+| members | 883 | 1 |
+| member_group_history | 903 | 1 |
+| guests | 3.003 | 1 |
+| guest_referrals | 3.001 | 1 |
+| guest_consents | 3.001 | 1 |
+| attendances | 1.325 | 0 |
+| transport_requests | 300 | 0 |
+| duplicate_reviews | 0 | 0 |
+| goal_snapshots | 0 | 0 |
+| audit_logs | 7.928 | 3 |
+
 ## [Extra] — 2026-11-21 — Identidade visual profissional
 
 ### Alterado (somente a camada visual; sem mudanças em regras, banco ou RLS)

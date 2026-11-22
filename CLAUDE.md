@@ -3,6 +3,15 @@
 Sistema de Gestão **Trombetas e Festas** — Igreja Cristã Maranata, Polo Torre.
 A especificação oficial é [docs/PROMPT_MESTRE.md](docs/PROMPT_MESTRE.md) e **prevalece sobre qualquer suposição**.
 
+## ⚠️ PRODUÇÃO
+- O projeto Supabase `zaawhfbmuogfyigxscta` é a **PRODUÇÃO oficial** desde 22/11/2026 (evento: 28/11/2026, 17h).
+  `app_settings.environment = 'prod'`. Há dados reais de pessoas.
+- **Nunca** rodar nele: `seed:demo`, `test:rls`, `test:carga`, `db:marcar-dev`, `limpar-demo.sql`, `preparar-teste-rls.sql`
+  ou qualquer script/SQL de teste com escrita ou limpeza. Os scripts recusam este project ref (`scripts/lib/guard.mjs`)
+  e o banco recusa os SQLs (exigem `environment = 'dev'`).
+- Migrations novas só com revisão do usuário antes de `db push`. Testes com escrita: só num projeto DEV separado.
+- Não alterar nem apagar dados existentes sem pedido explícito.
+
 ## Ao iniciar ou retomar uma sessão
 1. Leia [docs/PROGRESSO.md](docs/PROGRESSO.md) e continue da primeira fase não concluída.
 2. Leia [docs/DECISOES.md](docs/DECISOES.md) antes de decidir algo já discutido.
@@ -25,7 +34,7 @@ A especificação oficial é [docs/PROMPT_MESTRE.md](docs/PROMPT_MESTRE.md) e **
   **A Vercel já foi conectada pelo usuário no painel, com as variáveis configuradas. Não criar outro projeto
   na Vercel nem rodar `vercel link`.**
 - Testes: Vitest (lógica), scripts SQL/API com usuários de teste (RLS), Playwright (fluxos principais).
-- Supabase DEV: `zaawhfbmuogfyigxscta` (pode receber seed de demonstração). Produção: projeto separado, **nunca** rodar seed fictício.
+- Supabase PRODUÇÃO: `zaawhfbmuogfyigxscta` (ver seção acima). Não há projeto DEV no momento; para testes com escrita, criar um projeto DEV separado e incluir em `scripts/lib/guard.mjs` apenas os refs de produção.
 
 ## Segurança (inegociável)
 - **Nunca** usar, pedir ou commitar a `service_role` no frontend. Nenhuma variável `VITE_*` pode conter segredo.

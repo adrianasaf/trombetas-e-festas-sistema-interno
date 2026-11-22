@@ -7,6 +7,10 @@
 import { runRemoteSql } from './lib/db-query.mjs'
 import { readFileSync, existsSync } from 'node:fs'
 
+import { refuseProduction } from './lib/guard.mjs'
+
+refuseProduction('db:marcar-dev')
+
 const DEV_REF = 'zaawhfbmuogfyigxscta'
 const refFile = 'supabase/.temp/project-ref'
 const ref = existsSync(refFile) ? readFileSync(refFile, 'utf8').trim() : ''

@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { createClient } from '@supabase/supabase-js'
 import { runRemoteSql } from './db-query.mjs'
+import { refuseProduction } from './guard.mjs'
 
 const root = path.resolve(import.meta.dirname, '../..')
 
@@ -26,6 +27,7 @@ export function loadEnv() {
  * (não gravada em arquivo nem exibida). Exige app_settings.environment = 'dev'.
  */
 export function prepareTestUsers() {
+  refuseProduction('preparo de usuários de teste')
   const password = `Rls-${randomBytes(12).toString('hex')}9`
   const sql = readFileSync(path.join(root, 'scripts/sql/preparar-teste-rls.sql'), 'utf8').replaceAll(
     '{{SENHA}}',

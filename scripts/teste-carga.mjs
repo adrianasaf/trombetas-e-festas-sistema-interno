@@ -7,6 +7,10 @@
  */
 import { loadEnv, loginAs, prepareTestUsers } from './lib/test-users.mjs'
 
+import { refuseProduction } from './lib/guard.mjs'
+
+refuseProduction('test:carga')
+
 const env = loadEnv()
 const password = prepareTestUsers()
 const recepcao = await loginAs(env, 'rls.recepcao', password)

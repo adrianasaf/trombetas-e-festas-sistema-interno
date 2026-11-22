@@ -14,6 +14,10 @@ import { readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
 import { createClient } from '@supabase/supabase-js'
 
+import { refuseProduction } from './lib/guard.mjs'
+
+refuseProduction('test:rls')
+
 const root = path.resolve(import.meta.dirname, '..')
 
 function loadEnv() {
