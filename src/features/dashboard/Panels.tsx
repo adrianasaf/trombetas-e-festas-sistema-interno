@@ -11,7 +11,7 @@ import {
   type GoalStats,
 } from '@/features/goals/goalQueries'
 import { CATEGORY_LABEL } from '@/features/guests/labels'
-import { numberFmt } from '@/lib/format'
+import { formatPercent, numberFmt } from '@/lib/format'
 import { StatCards } from './StatCards'
 import {
   fillDays,
@@ -145,7 +145,7 @@ export function PoloDashboard() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <ChartCard
           title="Convites por igreja"
-          description="Convidados únicos cadastrados. Toque para abrir o painel da igreja."
+          description="Convidados únicos em relação à meta de cada igreja. Toque para abrir o painel."
           table={
             <DataTable
               head={['Igreja', 'Convidados', 'Meta', '%']}
@@ -158,14 +158,19 @@ export function PoloDashboard() {
             />
           }
         >
+          {/* Barra = progresso até a meta da própria igreja (100% no filete dourado), não comparação entre igrejas. */}
           <BarList
+            max={Math.max(100, ...churches.map((c) => c.pct_invites ?? 0))}
+            goalAt={100}
             rows={[...churches]
               .sort((a, b) => b.guests_unique - a.guests_unique)
               .map((c) => ({
                 key: c.church_id,
                 label: c.church_name,
-                value: c.guests_unique,
-                valueLabel: `${numberFmt.format(c.guests_unique)} / ${numberFmt.format(c.invites_goal)}`,
+                value: c.pct_invites ?? 0,
+                valueLabel: `${numberFmt.format(c.guests_unique)} / ${numberFmt.format(c.invites_goal)}${
+                  c.invites_goal > 0 ? ` · ${formatPercent(c.pct_invites)}` : ''
+                }`,
                 href: `/igrejas/${c.church_id}`,
               }))}
           />
@@ -185,13 +190,17 @@ export function PoloDashboard() {
           }
         >
           <BarList
+            max={Math.max(100, ...churches.map((c) => c.pct_attendance ?? 0))}
+            goalAt={100}
             rows={[...churches]
               .sort((a, b) => b.present_unique - a.present_unique)
               .map((c) => ({
                 key: c.church_id,
                 label: c.church_name,
-                value: c.present_unique,
-                valueLabel: `${numberFmt.format(c.present_unique)} / ${numberFmt.format(c.attendance_goal)}`,
+                value: c.pct_attendance ?? 0,
+                valueLabel: `${numberFmt.format(c.present_unique)} / ${numberFmt.format(c.attendance_goal)}${
+                  c.attendance_goal > 0 ? ` · ${formatPercent(c.pct_attendance)}` : ''
+                }`,
                 href: `/igrejas/${c.church_id}`,
               }))}
           />
