@@ -19,6 +19,7 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { PageHeader } from '@/components/ui/page-header'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/features/auth/AuthProvider'
+import { generateTempPassword, validateNewPassword } from '@/features/auth/password'
 import { useChurches, useGroups } from '@/features/shared/queries'
 import { translateError } from '@/lib/errors'
 import { ROLE_LABELS, type AppRole } from '@/lib/roles'
@@ -49,11 +50,29 @@ const dateFmt = new Intl.DateTimeFormat('pt-BR', {
   timeZone: 'America/Fortaleza',
 })
 
+/** Chama a função de contas no servidor e devolve a mensagem (ou lança o erro em português). */
+async function callAccounts(body: Record<string, unknown>): Promise<string> {
+  const { data, error } = await supabase.functions.invoke('convidar-usuario', { body })
+  if (error) {
+    let message = translateError(error)
+    try {
+      const ctx = (error as { context?: Response }).context
+      const payload = ctx && typeof ctx.json === 'function' ? await ctx.json() : null
+      if (payload?.error) message = payload.error
+    } catch {
+      /* mantém a mensagem genérica */
+    }
+    throw new Error(message)
+  }
+  return (data as { message?: string })?.message ?? 'Pronto.'
+}
+
 export function UsersPage() {
   const { isAdmin, profile, assignments: myAssignments } = useAuth()
   const qc = useQueryClient()
-  const [inviteOpen, setInviteOpen] = useState(false)
+  const [creating, setCreating] = useState(false)
   const [addFor, setAddFor] = useState<ManageableUser | null>(null)
+  const [passwordFor, setPasswordFor] = useState<ManageableUser | null>(null)
 
   const users = useQuery({
     queryKey: ['manageable-users'],
@@ -78,9 +97,7 @@ export function UsersPage() {
 
   const byUser = useMemo(() => {
     const map = new Map<string, Assignment[]>()
-    for (const a of assignments.data ?? []) {
-      map.set(a.user_id, [...(map.get(a.user_id) ?? []), a])
-    }
+    for (const a of assignments.data ?? []) map.set(a.user_id, [...(map.get(a.user_id) ?? []), a])
     return map
   }, [assignments.data])
 
@@ -88,6 +105,11 @@ export function UsersPage() {
     () => myAssignments.filter((a) => a.role === 'church_manager').map((a) => a.church_id as string),
     [myAssignments],
   )
+
+  const refresh = () => {
+    void qc.invalidateQueries({ queryKey: ['manageable-users'] })
+    void qc.invalidateQueries({ queryKey: ['role-assignments'] })
+  }
 
   const removeAssignment = useMutation({
     mutationFn: async (id: string) => {
@@ -97,34 +119,9 @@ export function UsersPage() {
     },
     onSuccess: () => {
       toast.success('Perfil removido.')
-      void qc.invalidateQueries({ queryKey: ['role-assignments'] })
+      refresh()
     },
     onError: (e) => toast.error(translateError(e)),
-  })
-
-  const resendInvite = useMutation({
-    mutationFn: async (u: ManageableUser) => {
-      const { data, error } = await supabase.functions.invoke('convidar-usuario', {
-        body: { action: 'reenviar', email: u.email, redirect_to: window.location.origin },
-      })
-      if (error) {
-        let message = translateError(error)
-        try {
-          const ctx = (error as { context?: Response }).context
-          const body = ctx && typeof ctx.json === 'function' ? await ctx.json() : null
-          if (body?.error) message = body.error
-        } catch {
-          /* mantém a mensagem genérica */
-        }
-        throw new Error(message)
-      }
-      return (data as { message?: string })?.message ?? 'Convite reenviado.'
-    },
-    onSuccess: (message) => {
-      toast.success(message)
-      void qc.invalidateQueries({ queryKey: ['manageable-users'] })
-    },
-    onError: (e) => toast.error((e as Error).message),
   })
 
   const toggleActive = useMutation({
@@ -134,7 +131,7 @@ export function UsersPage() {
     },
     onSuccess: () => {
       toast.success('Situação do usuário atualizada.')
-      void qc.invalidateQueries({ queryKey: ['manageable-users'] })
+      refresh()
     },
     onError: (e) => toast.error(translateError(e)),
   })
@@ -148,13 +145,15 @@ export function UsersPage() {
         title="Usuários e permissões"
         description={
           isAdmin
-            ? 'Convide pessoas e defina o que cada uma pode acessar.'
-            : 'Convide pessoas da sua igreja e defina o que cada uma pode acessar.'
+            ? 'Crie as contas com e-mail e senha inicial. No primeiro acesso, cada pessoa cria a própria senha.'
+            : 'As contas são criadas pelo Administrador do Polo. Aqui você dá perfis da sua igreja a quem já tem conta.'
         }
         actions={
-          <Button onClick={() => setInviteOpen(true)} size="lg">
-            Convidar usuário
-          </Button>
+          isAdmin && (
+            <Button onClick={() => setCreating(true)} size="lg">
+              Criar conta
+            </Button>
+          )
         }
       />
 
@@ -171,7 +170,11 @@ export function UsersPage() {
         </p>
       )}
       {!loading && !error && (users.data?.length ?? 0) === 0 && (
-        <EmptyState title="Nenhum usuário ainda">Convide a primeira pessoa usando o botão acima.</EmptyState>
+        <EmptyState title="Ninguém por aqui ainda">
+          {isAdmin
+            ? 'Crie a primeira conta pelo botão acima.'
+            : 'Peça ao Administrador do Polo para criar as contas.'}
+        </EmptyState>
       )}
 
       <div className="space-y-3">
@@ -185,7 +188,7 @@ export function UsersPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold">{u.full_name || '(nome não informado)'}</span>
                     {!u.active && <Badge variant="destructive">Desativado</Badge>}
-                    {!u.last_sign_in_at && u.invited_at && <Badge variant="warning">Convite pendente</Badge>}
+                    {!u.last_sign_in_at && <Badge variant="warning">Nunca acessou</Badge>}
                     {isMe && <Badge variant="secondary">Você</Badge>}
                   </div>
                   <div className="break-all text-sm text-muted-foreground">{u.email}</div>
@@ -201,7 +204,7 @@ export function UsersPage() {
                     {list.map((a) => (
                       <li
                         key={a.id}
-                        className="flex items-center gap-1 rounded-full bg-secondary py-0.5 pl-3 pr-1 text-sm"
+                        className="flex items-center gap-1 rounded-full bg-secondary py-0.5 pr-1 pl-3 text-sm"
                       >
                         <span>
                           {ROLE_LABELS[a.role]}
@@ -229,19 +232,9 @@ export function UsersPage() {
                   <Button variant="outline" size="sm" onClick={() => setAddFor(u)}>
                     Adicionar perfil
                   </Button>
-                  {!isMe && u.active && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={resendInvite.isPending}
-                      onClick={() => {
-                        const msg = u.last_sign_in_at
-                          ? `${u.email} já acessou o sistema. Enviar um link para definir nova senha?`
-                          : `Reenviar o convite para ${u.email}? O link anterior deixa de valer.`
-                        if (window.confirm(msg)) resendInvite.mutate(u)
-                      }}
-                    >
-                      {u.last_sign_in_at ? 'Reenviar acesso' : 'Reenviar convite'}
+                  {isAdmin && !isMe && (
+                    <Button variant="outline" size="sm" onClick={() => setPasswordFor(u)}>
+                      Definir nova senha
                     </Button>
                   )}
                   {isAdmin && !isMe && (
@@ -263,47 +256,169 @@ export function UsersPage() {
         })}
       </div>
 
-      <InviteDialog
-        open={inviteOpen || addFor !== null}
-        presetEmail={addFor?.email}
-        onClose={() => {
-          setInviteOpen(false)
-          setAddFor(null)
-        }}
-        isAdmin={isAdmin}
-        managedChurchIds={managedChurchIds}
-        onDone={() => {
-          void qc.invalidateQueries({ queryKey: ['manageable-users'] })
-          void qc.invalidateQueries({ queryKey: ['role-assignments'] })
-        }}
-      />
+      {(creating || addFor) && (
+        <AccountDialog
+          presetEmail={addFor?.email}
+          onClose={() => {
+            setCreating(false)
+            setAddFor(null)
+          }}
+          isAdmin={isAdmin}
+          managedChurchIds={managedChurchIds}
+          onDone={refresh}
+        />
+      )}
+      {passwordFor && <PasswordDialog user={passwordFor} onClose={() => setPasswordFor(null)} />}
     </div>
   )
 }
 
-function InviteDialog({
-  open,
+/** Mostra e-mail e senha inicial para o Admin repassar, com botão de copiar. */
+function CredentialsBox({ email, password }: { email: string; password: string }) {
+  const text = `Sistema Trombetas e Festas\nEndereço: ${window.location.origin}\nE-mail: ${email}\nSenha inicial: ${password}\nNo primeiro acesso, você vai criar a sua própria senha.`
+  return (
+    <div className="space-y-3">
+      <div className="rounded-md border bg-muted p-4 text-sm">
+        <div>
+          E-mail: <strong className="break-all">{email}</strong>
+        </div>
+        <div>
+          Senha inicial: <strong className="num tracking-wider">{password}</strong>
+        </div>
+      </div>
+      <p className="text-sm text-muted-foreground">
+        Repasse esses dados à pessoa por um canal privado (por exemplo, mensagem direta). No primeiro acesso
+        ela será obrigada a criar a própria senha. Esta senha não será mostrada de novo.
+      </p>
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full"
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(text)
+            toast.success('Dados copiados.')
+          } catch {
+            toast.error('Não foi possível copiar. Anote os dados acima.')
+          }
+        }}
+      >
+        Copiar dados de acesso
+      </Button>
+    </div>
+  )
+}
+
+function PasswordField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor="acc-pass">Senha inicial</Label>
+      <div className="flex gap-2">
+        <Input
+          id="acc-pass"
+          type="text"
+          autoComplete="off"
+          spellCheck={false}
+          className="num"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        <Button type="button" variant="outline" onClick={() => onChange(generateTempPassword())}>
+          Gerar
+        </Button>
+      </div>
+      <p className="text-sm text-muted-foreground">Mínimo de 8 caracteres, com letras e números.</p>
+    </div>
+  )
+}
+
+function PasswordDialog({ user, onClose }: { user: ManageableUser; onClose: () => void }) {
+  const [password, setPassword] = useState(generateTempPassword)
+  const [error, setError] = useState<string | null>(null)
+  const [done, setDone] = useState(false)
+  const save = useMutation({
+    mutationFn: () => callAccounts({ action: 'definir_senha', user_id: user.id, password }),
+    onSuccess: () => setDone(true),
+    onError: (e) => setError((e as Error).message),
+  })
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Definir nova senha</DialogTitle>
+          <DialogDescription>
+            {user.full_name || user.email}. A senha atual deixa de valer e a pessoa cria outra no próximo
+            acesso.
+          </DialogDescription>
+        </DialogHeader>
+        {done ? (
+          <>
+            <CredentialsBox email={user.email} password={password} />
+            <DialogFooter>
+              <Button onClick={onClose}>Concluir</Button>
+            </DialogFooter>
+          </>
+        ) : (
+          <form
+            className="space-y-4"
+            noValidate
+            onSubmit={(e) => {
+              e.preventDefault()
+              const problem = validateNewPassword(password, password)
+              if (problem) return setError(problem)
+              setError(null)
+              save.mutate()
+            }}
+          >
+            <PasswordField value={password} onChange={setPassword} />
+            {error && (
+              <p
+                role="alert"
+                className="rounded-md bg-destructive/10 p-3 text-sm font-medium text-destructive"
+              >
+                {error}
+              </p>
+            )}
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={save.isPending}>
+                {save.isPending ? 'Salvando…' : 'Definir senha'}
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+/** Criar conta (Admin: e-mail + nome + senha inicial + perfil) ou adicionar perfil a quem já tem conta. */
+function AccountDialog({
   presetEmail,
   onClose,
   isAdmin,
   managedChurchIds,
   onDone,
 }: {
-  open: boolean
   presetEmail?: string
   onClose: () => void
   isAdmin: boolean
   managedChurchIds: string[]
   onDone: () => void
 }) {
+  const creating = !presetEmail
   const churches = useChurches()
   const [email, setEmail] = useState('')
   const [fullName, setFullName] = useState('')
+  const [password, setPassword] = useState(generateTempPassword)
   const [role, setRole] = useState<AppRole>('group_leader')
   const [churchId, setChurchId] = useState('')
   const [groupId, setGroupId] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [created, setCreated] = useState<{ email: string; password: string } | null>(null)
   const groups = useGroups(churchId || null)
 
   const roleOptions: AppRole[] = isAdmin
@@ -313,161 +428,171 @@ function InviteDialog({
   const needsChurch = role === 'church_manager' || role === 'group_leader' || (role === 'reader' && !isAdmin)
   const allowsChurch = needsChurch || role === 'reader'
   const needsGroup = role === 'group_leader'
-  const targetEmail = presetEmail ?? email
-
-  function reset() {
-    setEmail('')
-    setFullName('')
-    setRole('group_leader')
-    setChurchId('')
-    setGroupId('')
-    setError(null)
-  }
+  const targetEmail = (presetEmail ?? email).trim().toLowerCase()
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(targetEmail.trim())) return setError('Informe um e-mail válido.')
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(targetEmail)) return setError('Informe um e-mail válido.')
+    if (creating && fullName.trim().length < 3) return setError('Informe o nome completo.')
+    if (creating) {
+      const problem = validateNewPassword(password, password)
+      if (problem) return setError(problem)
+    }
     if (needsChurch && !churchId) return setError('Escolha a igreja.')
     if (needsGroup && !groupId) return setError('Escolha o grupo de assistência.')
     setSubmitting(true)
-    const { data, error } = await supabase.functions.invoke('convidar-usuario', {
-      body: {
-        email: targetEmail.trim(),
+    try {
+      const message = await callAccounts({
+        action: creating ? 'criar' : 'perfil',
+        email: targetEmail,
         full_name: fullName.trim(),
+        password: creating ? password : undefined,
         role,
         church_id: allowsChurch && churchId ? churchId : null,
         group_id: needsGroup ? groupId : null,
-        redirect_to: `${window.location.origin}/definir-senha?tipo=convite`,
-      },
-    })
-    setSubmitting(false)
-    if (error) {
-      let message = translateError(error)
-      try {
-        const ctx = (error as { context?: Response }).context
-        if (ctx && typeof ctx.json === 'function') {
-          const body = await ctx.json()
-          if (body?.error) message = body.error
-        }
-      } catch {
-        /* mantém a mensagem genérica */
+      })
+      onDone()
+      if (creating) {
+        toast.success(message)
+        setCreated({ email: targetEmail, password })
+      } else {
+        toast.success(message)
+        onClose()
       }
-      setError(message)
-      return
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setSubmitting(false)
     }
-    toast.success((data as { message?: string })?.message ?? 'Convite enviado.')
-    reset()
-    onDone()
-    onClose()
   }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(o) => {
-        if (!o) {
-          reset()
-          onClose()
-        }
-      }}
-    >
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{presetEmail ? 'Adicionar perfil' : 'Convidar usuário'}</DialogTitle>
+          <DialogTitle>
+            {creating ? (created ? 'Conta criada' : 'Criar conta') : 'Adicionar perfil'}
+          </DialogTitle>
           <DialogDescription>
-            {presetEmail
-              ? `Novo perfil para ${presetEmail}.`
-              : 'A pessoa receberá um e-mail com o link para criar a senha.'}
+            {creating
+              ? created
+                ? 'A conta já está ativa.'
+                : 'Nenhum e-mail é enviado. Você repassa o e-mail e a senha inicial à pessoa.'
+              : `Novo perfil para ${presetEmail}.`}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={onSubmit} className="space-y-4" noValidate>
-          {!presetEmail && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="inv-email">E-mail</Label>
-                <Input id="inv-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="inv-name">Nome completo</Label>
-                <Input id="inv-name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-              </div>
-            </>
-          )}
-          <div className="space-y-2">
-            <Label htmlFor="inv-role">Perfil</Label>
-            <NativeSelect
-              id="inv-role"
-              value={role}
-              onChange={(e) => {
-                setRole(e.target.value as AppRole)
-                setGroupId('')
-              }}
-            >
-              {roleOptions.map((r) => (
-                <option key={r} value={r}>
-                  {ROLE_LABELS[r]}
-                </option>
-              ))}
-            </NativeSelect>
-          </div>
-          {allowsChurch && (
+        {created ? (
+          <>
+            <CredentialsBox email={created.email} password={created.password} />
+            <DialogFooter>
+              <Button onClick={onClose}>Concluir</Button>
+            </DialogFooter>
+          </>
+        ) : (
+          <form onSubmit={onSubmit} className="space-y-4" noValidate>
+            {creating && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="acc-email">E-mail</Label>
+                  <Input
+                    id="acc-email"
+                    type="email"
+                    autoComplete="off"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="acc-name">Nome completo</Label>
+                  <Input
+                    id="acc-name"
+                    autoComplete="off"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                  />
+                </div>
+                <PasswordField value={password} onChange={setPassword} />
+              </>
+            )}
             <div className="space-y-2">
-              <Label htmlFor="inv-church">Igreja</Label>
+              <Label htmlFor="acc-role">Perfil</Label>
               <NativeSelect
-                id="inv-church"
-                value={churchId}
+                id="acc-role"
+                value={role}
                 onChange={(e) => {
-                  setChurchId(e.target.value)
+                  setRole(e.target.value as AppRole)
                   setGroupId('')
                 }}
               >
-                <option value="">
-                  {role === 'reader' && isAdmin ? 'Polo inteiro (todas as igrejas)' : 'Selecione…'}
-                </option>
-                {churchOptions.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
+                {roleOptions.map((r) => (
+                  <option key={r} value={r}>
+                    {ROLE_LABELS[r]}
                   </option>
                 ))}
               </NativeSelect>
             </div>
-          )}
-          {needsGroup && (
-            <div className="space-y-2">
-              <Label htmlFor="inv-group">Grupo de assistência</Label>
-              <NativeSelect
-                id="inv-group"
-                value={groupId}
-                disabled={!churchId}
-                onChange={(e) => setGroupId(e.target.value)}
-              >
-                <option value="">{churchId ? 'Selecione…' : 'Escolha a igreja primeiro'}</option>
-                {(groups.data ?? [])
-                  .filter((g) => g.active)
-                  .map((g) => (
-                    <option key={g.id} value={g.id}>
-                      {g.name}
+            {allowsChurch && (
+              <div className="space-y-2">
+                <Label htmlFor="acc-church">Igreja</Label>
+                <NativeSelect
+                  id="acc-church"
+                  value={churchId}
+                  onChange={(e) => {
+                    setChurchId(e.target.value)
+                    setGroupId('')
+                  }}
+                >
+                  <option value="">
+                    {role === 'reader' && isAdmin ? 'Polo inteiro (todas as igrejas)' : 'Selecione…'}
+                  </option>
+                  {churchOptions.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
                     </option>
                   ))}
-              </NativeSelect>
-            </div>
-          )}
-          <p className="rounded-md bg-muted p-3 text-sm text-muted-foreground">{roleHelp(role)}</p>
-          {error && (
-            <p role="alert" className="rounded-md bg-destructive/10 p-3 text-sm font-medium text-destructive">
-              {error}
-            </p>
-          )}
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={submitting}>
-              {submitting ? 'Enviando…' : presetEmail ? 'Adicionar' : 'Enviar convite'}
-            </Button>
-          </DialogFooter>
-        </form>
+                </NativeSelect>
+              </div>
+            )}
+            {needsGroup && (
+              <div className="space-y-2">
+                <Label htmlFor="acc-group">Grupo de assistência</Label>
+                <NativeSelect
+                  id="acc-group"
+                  value={groupId}
+                  disabled={!churchId}
+                  onChange={(e) => setGroupId(e.target.value)}
+                >
+                  <option value="">{churchId ? 'Selecione…' : 'Escolha a igreja primeiro'}</option>
+                  {(groups.data ?? [])
+                    .filter((g) => g.active)
+                    .map((g) => (
+                      <option key={g.id} value={g.id}>
+                        {g.name}
+                      </option>
+                    ))}
+                </NativeSelect>
+              </div>
+            )}
+            <p className="rounded-md bg-muted p-3 text-sm text-muted-foreground">{roleHelp(role)}</p>
+            {error && (
+              <p
+                role="alert"
+                className="rounded-md bg-destructive/10 p-3 text-sm font-medium text-destructive"
+              >
+                {error}
+              </p>
+            )}
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={submitting}>
+                {submitting ? 'Salvando…' : creating ? 'Criar conta' : 'Adicionar'}
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   )

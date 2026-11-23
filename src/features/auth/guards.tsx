@@ -23,6 +23,9 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   const location = useLocation()
   if (loading) return <FullPageLoading />
   if (!session) return <Navigate to="/login" replace state={{ from: location.pathname }} />
+  // Senha definida pelo Administrador: precisa criar a própria antes de usar o sistema.
+  if (session.user.user_metadata?.must_change_password === true)
+    return <Navigate to="/definir-senha" replace />
   if (profileError) {
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center gap-4 p-6 text-center">

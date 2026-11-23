@@ -2,6 +2,18 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Produção] — 2026-11-23 — Contas criadas pelo Administrador (sem e-mail)
+
+### Alterado
+- Só o Administrador do Polo cria contas, informando e-mail, nome, senha inicial (com gerador) e perfil.
+  Nenhum e-mail é enviado; a tela mostra os dados de acesso para copiar e repassar.
+- No primeiro acesso (e após "Definir nova senha"), a pessoa é obrigada a criar a própria senha.
+- "Esqueci minha senha" orienta a pedir ao Administrador; o Admin usa "Definir nova senha" no cartão do usuário.
+- "Alterar minha senha" no menu do usuário.
+- Gestor de Igreja não cria contas; continua podendo adicionar perfis da sua igreja a quem já tem conta.
+- Removido o reenvio de convite por e-mail. Edge Function `convidar-usuario` republicada (ações `criar`,
+  `definir_senha`, `perfil`). Sem alteração de banco.
+
 ## [Produção] — 2026-11-22 — Reenviar convite
 
 ### Adicionado

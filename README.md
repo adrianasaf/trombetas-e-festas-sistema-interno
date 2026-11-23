@@ -90,7 +90,7 @@ A proteção contra senhas vazadas (Auth) também exige o plano Pro.
    npm run admin:criar -- pessoa@exemplo.com
    ```
    A função só pode ser executada pelo dono do banco, nunca pela API pública.
-3. A pessoa entra em `/login`. Os demais usuários são convidados pela tela **Usuários e permissões**.
+3. A pessoa entra em `/login`. As demais contas são criadas pelo Administrador do Polo em **Usuários e permissões › Criar conta** (e-mail + senha inicial; sem e-mail). No primeiro acesso, cada pessoa cria a própria senha. Senha esquecida: o Admin usa **Definir nova senha**.
 
 Depois, em **Configurações**, o Admin cria a edição do evento, define as metas e a data de corte e a
 marca como **Ativa**. O cadastro de convidados e o check-in dependem de uma edição ativa.

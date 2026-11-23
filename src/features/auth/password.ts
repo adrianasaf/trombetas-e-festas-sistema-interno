@@ -8,3 +8,18 @@ export function validateNewPassword(password: string, confirmation: string): str
   if (password !== confirmation) return 'As senhas não conferem.'
   return null
 }
+
+/** Senha inicial gerada para o Administrador repassar (sem caracteres ambíguos como 0/O, 1/l/I). */
+export function generateTempPassword(length = 10): string {
+  const letters = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
+  const digits = '23456789'
+  const all = letters + digits
+  const pick = (set: string) => set[crypto.getRandomValues(new Uint32Array(1))[0] % set.length]
+  const chars = [pick(letters), pick(digits)]
+  while (chars.length < length) chars.push(pick(all))
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1)
+    ;[chars[i], chars[j]] = [chars[j], chars[i]]
+  }
+  return chars.join('')
+}

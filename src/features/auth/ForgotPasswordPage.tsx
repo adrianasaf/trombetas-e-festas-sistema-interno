@@ -1,78 +1,17 @@
-import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { translateError } from '@/lib/errors'
-import { supabase } from '@/lib/supabase'
 import { AuthLayout } from './AuthLayout'
 
+/** Sem envio de e-mail: a senha é redefinida pelo Administrador do Polo. */
 export function ForgotPasswordPage() {
-  const [email, setEmail] = useState('')
-  const [sent, setSent] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault()
-    if (!email.trim()) {
-      setError('Informe o e-mail.')
-      return
-    }
-    setError(null)
-    setSubmitting(true)
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/definir-senha?tipo=recuperacao`,
-    })
-    setSubmitting(false)
-    if (error) {
-      setError(translateError(error))
-      return
-    }
-    // Mesma mensagem exista ou não o e-mail (não revela quem tem cadastro).
-    setSent(true)
-  }
-
   return (
-    <AuthLayout title="Recuperar senha" description="Enviaremos um link para você criar uma nova senha.">
-      {sent ? (
-        <div className="space-y-4">
-          <p role="status" className="rounded-md bg-success/10 p-3 text-success">
-            Se este e-mail tiver acesso ao sistema, você receberá o link em alguns minutos. Confira também a
-            caixa de spam.
-          </p>
-          <Button asChild variant="outline" className="w-full">
-            <Link to="/login">Voltar ao login</Link>
-          </Button>
-        </div>
-      ) : (
-        <form onSubmit={onSubmit} className="space-y-4" noValidate>
-          <div className="space-y-2">
-            <Label htmlFor="email">E-mail</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          {error && (
-            <p role="alert" className="rounded-md bg-destructive/10 p-3 text-sm font-medium text-destructive">
-              {error}
-            </p>
-          )}
-          <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-            {submitting ? 'Enviando…' : 'Enviar link'}
-          </Button>
-          <p className="text-center text-sm">
-            <Link to="/login" className="font-semibold text-primary underline underline-offset-2">
-              Voltar ao login
-            </Link>
-          </p>
-        </form>
-      )}
+    <AuthLayout
+      title="Esqueceu a senha?"
+      description="Peça ao Administrador do Polo para definir uma nova senha para você. No próximo acesso, você cria a sua."
+    >
+      <Button asChild size="lg" className="w-full">
+        <Link to="/login">Voltar ao login</Link>
+      </Button>
     </AuthLayout>
   )
 }

@@ -1,11 +1,13 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-import { ChevronDown, LogOut, MonitorSmartphone, UserRound } from 'lucide-react'
+import { ChevronDown, KeyRound, LogOut, MonitorSmartphone, UserRound } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useAuth } from '@/features/auth/AuthProvider'
 import { ROLE_LABELS } from '@/lib/roles'
 
 export function UserMenu() {
   const { profile, assignments, signOut } = useAuth()
+  const navigate = useNavigate()
   const label = profile?.full_name || profile?.email || 'Usuário'
 
   return (
@@ -35,6 +37,12 @@ export function UserMenu() {
             </ul>
           </div>
           <DropdownMenu.Separator className="my-1 h-px bg-border" />
+          <DropdownMenu.Item
+            className="flex min-h-11 cursor-pointer items-center gap-2 rounded px-3 outline-none data-[highlighted]:bg-secondary"
+            onSelect={() => navigate('/definir-senha')}
+          >
+            <KeyRound className="size-4" /> Alterar minha senha
+          </DropdownMenu.Item>
           <DropdownMenu.Item
             className="flex min-h-11 cursor-pointer items-center gap-2 rounded px-3 outline-none data-[highlighted]:bg-secondary"
             onSelect={() => void signOut('local')}

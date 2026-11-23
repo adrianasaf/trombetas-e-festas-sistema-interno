@@ -77,7 +77,7 @@ export function LoginPage() {
           </Link>
         </p>
         <p className="text-center text-xs text-muted-foreground">
-          Não há cadastro público. O acesso é liberado por convite da coordenação.
+          As contas são criadas pelo Administrador do Polo.
         </p>
       </form>
     </AuthLayout>

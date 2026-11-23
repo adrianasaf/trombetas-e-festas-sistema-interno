@@ -198,5 +198,9 @@ Decisões tomadas onde a especificação era omissa ou ambígua. Formato: contex
 - **Contexto:** a especificação mandava nunca apagar presenças; o usuário pediu poder excluir convidados mesmo com presença, para corrigir erros.
 - **Decisão:** permitido apenas ao Gestor da igreja e ao Admin (os mesmos que desmarcam presença), com motivo obrigatório registrado em `audit_logs` (`guests.excluir`, com o número de presenças apagadas). Registros mesclados no convidado saem junto.
 
+### D-053 — Contas criadas pelo Administrador, sem e-mail
+- **Contexto:** o envio de e-mail padrão do Supabase bloqueou convites (limite por hora e só membros da equipe); o usuário decidiu que o Administrador do Polo cria as contas.
+- **Decisão:** a Edge Function cria a conta já confirmada (`email_confirm`) com a senha inicial informada pelo Admin e marca `user_metadata.must_change_password`; enquanto a marca existir, o sistema só abre a tela "Crie sua senha". O Admin redefine senhas pelo mesmo mecanismo. Gestores não criam contas (só adicionam perfis da própria igreja a contas existentes). A senha inicial é mostrada uma única vez para ser repassada por canal privado.
+
 ### D-016 — Igreja nunca é excluída
 - **Decisão:** não há política de delete em `churches`, e um gatilho impede a exclusão física mesmo pelo dono do banco.

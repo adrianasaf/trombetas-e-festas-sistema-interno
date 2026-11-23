@@ -16,3 +16,18 @@ describe('validateNewPassword', () => {
     expect(validateNewPassword('trombeta2026', 'trombeta2026')).toBeNull()
   })
 })
+
+describe('generateTempPassword', async () => {
+  const { generateTempPassword, validateNewPassword } = await import('./password')
+  it('gera senhas válidas, sem caracteres ambíguos e diferentes entre si', () => {
+    const seen = new Set<string>()
+    for (let i = 0; i < 200; i++) {
+      const p = generateTempPassword()
+      expect(p).toHaveLength(10)
+      expect(validateNewPassword(p, p)).toBeNull()
+      expect(p).not.toMatch(/[0O1lI]/)
+      seen.add(p)
+    }
+    expect(seen.size).toBe(200)
+  })
+})
