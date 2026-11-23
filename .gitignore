@@ -15,3 +15,6 @@ test-results
 .DS_Store
 *.tsbuildinfo
 scripts/tmp
+
+# Dados pessoais (importações) — nunca versionar
+dados/
