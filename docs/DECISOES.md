@@ -202,5 +202,8 @@ Decisões tomadas onde a especificação era omissa ou ambígua. Formato: contex
 - **Contexto:** o envio de e-mail padrão do Supabase bloqueou convites (limite por hora e só membros da equipe); o usuário decidiu que o Administrador do Polo cria as contas.
 - **Decisão:** a Edge Function cria a conta já confirmada (`email_confirm`) com a senha inicial informada pelo Admin e marca `user_metadata.must_change_password`; enquanto a marca existir, o sistema só abre a tela "Crie sua senha". O Admin redefine senhas pelo mesmo mecanismo. Gestores não criam contas (só adicionam perfis da própria igreja a contas existentes). A senha inicial é mostrada uma única vez para ser repassada por canal privado.
 
+### D-054 — Telefone opcional para adulto apenas no banco
+- **Decisão (usuário, 25/11/2026):** a restrição `guests_minor_guardian_check` deixou de exigir telefone de adultos, para que listas importadas com número faltando entrem mesmo assim (o número original vai nas observações). Cadastros feitos pelo site continuam exigindo telefone. Convidados sem telefone não entram na detecção de duplicidade por telefone, só por nome.
+
 ### D-016 — Igreja nunca é excluída
 - **Decisão:** não há política de delete em `churches`, e um gatilho impede a exclusão física mesmo pelo dono do banco.

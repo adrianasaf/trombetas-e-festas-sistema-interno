@@ -2,6 +2,14 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Produção] — 2026-11-25 — Telefone opcional no banco para importações
+
+### Alterado
+- Migration `20261125000100_telefone_opcional_importacao` (fornecida e revisada pelo usuário): adulto pode ficar
+  sem telefone no banco, para importar listas com número faltando ou inválido. O formulário do site e a
+  `create_guest` continuam exigindo telefone; criança/adolescente continuam exigindo responsável legal.
+- Importados 49 convidados do Grupo C da ICM Manaíra (3 sem telefone, com o número original nas observações).
+
 ## [Produção] — 2026-11-23 — Contas criadas pelo Administrador (sem e-mail)
 
 ### Alterado
